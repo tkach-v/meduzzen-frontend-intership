@@ -16,14 +16,10 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container home">
-    <h1 class="title">Project Quizzes</h1>
-    <p class="home__greeting">Welcome to my quiz project!</p>
-    <h2 style="margin-top: 3rem">API Response:</h2>
-    <div>{{ apiData }}</div>
+  <div class="container text-center my-auto">
+    <h1 class="fw-bold">Project Quizzes</h1>
+    <p class="">Welcome to my quiz project!</p>
+    <h2 class="mt-4">API Response:</h2>
+    <div>{{ JSON.stringify(apiData) }}</div>
   </div>
 </template>
-
-<style scoped lang="scss">
-@use "../assets/styles/home";
-</style>

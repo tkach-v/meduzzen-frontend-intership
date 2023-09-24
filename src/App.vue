@@ -6,7 +6,7 @@ import Footer from "@/components/Footer.vue";
 
 <template>
   <Header/>
-  <main class="main">
+  <main style="margin-top: 70px">
     <Home/>
   </main>
   <Footer/>
