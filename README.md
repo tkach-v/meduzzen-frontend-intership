@@ -10,17 +10,11 @@ git clone <repository_url>
 cd meduzzen-frontend-intership
 ```
 
-2. Install all required dependencies:
+2. Build and run the Docker Compose services:
 ```
-npm install
-```
-
-3. Start the development server:
-```
-npm run dev
+docker-compose up --build
 ```
 
-This will start the development server at http://localhost:5173/.
+This will start the development server at http://localhost:8080/.
 
-You should now be able to access the project in your web browser at http://localhost:5173/.
-
+You should now be able to access the project in your web browser at http://localhost:8080/.
