@@ -3,14 +3,14 @@
 </script>
 
 <template>
-  <header class="border-bottom fixed-top bg-body-tertiary">
+  <header class="border-bottom fixed-top bg-body-tertiary" data-bs-theme="dark">
     <nav class="navbar">
       <div class="container-fluid">
         <button class="btn border-0 pe-4" type="button" data-bs-toggle="offcanvas"
                 data-bs-target="#offcanvasWithBothOptions" aria-controls="offcanvasWithBothOptions">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <a class="navbar-brand fs-3 fw-bold" href="#">Quizzes</a>
+        <router-link class="navbar-brand fs-3 fw-bold" to="/">Quizzes</router-link>
         <div class="dropdown ms-auto">
           <button class="btn border-0 user-profile-btn" id="dropdown1"
              data-bs-toggle="dropdown" aria-expanded="false">
@@ -32,19 +32,22 @@
       <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasWithBothOptions"
            aria-labelledby="offcanvasWithBothOptionsLabel">
         <div class="offcanvas-header">
-          <a class="navbar-brand fs-2 fw-bold" href="#">Quizzes</a>
+          <router-link class="navbar-brand fs-2 fw-bold" to="/">Quizzes</router-link>
           <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body pt-0">
           <ul class="navbar-nav me-auto">
             <li class="nav-item">
-              <a class="nav-link active fs-5" href="#">About</a>
+              <router-link class="nav-link fs-5 fw-bold" to="/about">About</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link active fs-5" href="#">Users</a>
+              <router-link class="nav-link fs-5 fw-bold" to="/users">Users</router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link active fs-5" href="#">Companies</a>
+              <router-link class="nav-link fs-5 fw-bold" to="/companies">Companies</router-link>
+            </li>
+            <li class="nav-item">
+              <router-link class="nav-link fs-5 fw-bold" to="/login">Sign in</router-link>
             </li>
           </ul>
         </div>
@@ -54,7 +57,16 @@
 </template>
 
 <style scoped lang="scss">
-  .user-profile-btn.show {
-    background-color: #dee2e6;
+  .user-profile-btn {
+    &:hover {
+      color: #ffffff;
+    }
+    &.show {
+      background-color: #dee2e6;
+
+      &:hover {
+        color: #000000;
+      }
+    }
   }
 </style>
