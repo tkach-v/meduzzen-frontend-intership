@@ -4,11 +4,11 @@ import {useRouter} from "vue-router";
 
 const router = useRouter();
 
-const UsersList = reactive([
+const UsersList = [
   {id: 1, username: 'testusername1'},
   {id: 2, username: 'testusername2'},
   {id: 3, username: 'testusername3'},
-]);
+];
 
 const goToUserPage = (userId) => {
   router.push({name: 'userProfile', params: {id: userId}});

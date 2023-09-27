@@ -4,11 +4,11 @@ import {useRouter} from "vue-router";
 
 const router = useRouter();
 
-const CompaniesList = reactive([
+const CompaniesList = [
   {id: 1, name: 'test_company_name'},
   {id: 2, name: 'test_company_name'},
   {id: 3, name: 'test_company_name'},
-]);
+];
 
 const goToUserPage = (userId) => {
   router.push({name: 'companyProfile', params: {id: userId}});
@@ -26,7 +26,10 @@ const goToUserPage = (userId) => {
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(company) in CompaniesList" :key="company.id" @click="goToUserPage(company.id)">
+      <tr v-for="(company) in CompaniesList"
+          :key="company.id"
+          @click="goToUserPage(company.id)"
+      >
         <th scope="row">{{ company.id }}</th>
         <td>{{ company.name }}</td>
       </tr>

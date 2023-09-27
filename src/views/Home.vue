@@ -7,8 +7,8 @@ const apiData = ref(null);
 onMounted(async () => {
   try {
     const baseURL = import.meta.env.VITE_API_BASE_URL;
-    const response = await axios.get(baseURL);
-    apiData.value = response.data;
+    const { data } = await axios.get(baseURL);
+    apiData.value = data;
   } catch (error) {
     console.error('Error fetching data:', error);
   }
