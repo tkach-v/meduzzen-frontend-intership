@@ -5,8 +5,8 @@
 <template>
   <div class="container text-center fs-4 mt-5">
     <h1 class="fw-bold fs-1 text-404">404</h1>
-    <p class="mb-3">Sorry, an error has occured, Requested page not found!</p>
-    <router-link to="/" class="btn btn-primary btn-lg">Go to home page</router-link>
+    <p class="mb-3">{{$t('not_found.text')}}</p>
+    <router-link to="/" class="btn btn-primary btn-lg">{{$t('not_found.btn_text')}}</router-link>
   </div>
 </template>
 
