@@ -1,5 +1,5 @@
 FROM node:lts-alpine
-LABEL authors="Admin"
+LABEL authors="https://github.com/tkach-v"
 
 WORKDIR /app
 
