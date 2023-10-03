@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted} from "vue";
+import {ref, onMounted, computed} from "vue";
 import axios from "axios";
 
 const apiData = ref(null);
@@ -14,12 +14,18 @@ onMounted(async () => {
   }
 });
 
-import Modal from "@/components/Modal.vue";
+import {useStore} from 'vuex'
 
-let thisModal = ref(null);
+const store = useStore()
 
-function showModal() {
-  thisModal.value.show();
+const value = computed(() => store.state.test.testValue)
+
+const setValue = (newValue) => {
+  store.commit('test/setValue', {value: newValue})
+}
+
+const setValueAsync = (newValue) => {
+  store.dispatch('test/setValueAsync', {value: newValue})
 }
 </script>
 
@@ -29,16 +35,10 @@ function showModal() {
     <p class="fs-4">{{ $t("home.description") }}</p>
     <h2 class="fw-bold mt-5">{{ $t("home.api_header") }} (health check):</h2>
     <div>{{ JSON.stringify(apiData) }}</div>
-    <button
-        class="btn btn-lg btn-primary mt-5"
-        type="button"
-        @click="showModal"
-    >{{ $t("home.modal_btn_text") }}
-    </button>
-    <Modal title="Test modal title" ref="thisModal">
-      <h3>Test h3</h3>
-      <p><span>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Explicabo, quasi, ullam? Accusantium alias consequatur dolorem doloribus ducimus error in incidunt iusto numquam perspiciatis quibusdam quis, quod ratione, temporibus ullam veritatis!</span><span>Eum labore qui quia quos unde veritatis. Accusantium animi consectetur debitis dignissimos, dolores, eius eligendi eos esse, eveniet incidunt iste laudantium minus nam omnis sequi similique sit suscipit temporibus voluptatem?</span><span>Aliquid aspernatur blanditiis consequuntur, cumque dignissimos distinctio dolor dolore eaque fugiat iste labore laboriosam laudantium maxime molestiae molestias natus neque numquam odio omnis porro quidem reprehenderit suscipit, vitae voluptate voluptatem.</span>
-      </p>
-    </Modal>
+    <hr>
+    <h2>Test vuex store value:</h2>
+    <p>{{ value }}</p>
+    <button class="btn btn-primary me-2" @click="setValue('New Value')">Set Value</button>
+    <button class="btn btn-primary" @click="setValueAsync('Async Value')">Set Value Async</button>
   </div>
 </template>
