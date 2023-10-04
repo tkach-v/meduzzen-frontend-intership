@@ -10,19 +10,19 @@ const testModule = {
     }
   },
 
-  mutations: {
-    setValue(state, { value }) {
-      state.testValue = value
+  actions: {
+    async setValueAsync({commit}, {value}) {
+      setTimeout(() => {
+        commit('setValue', {value})
+      }, 1000)
     }
   },
 
-  actions: {
-    async setValueAsync({ commit }, { value }) {
-      setTimeout(() => {
-        commit('setValue', { value })
-      }, 1000)
+  mutations: {
+    setValue(state, {value}) {
+      state.testValue = value
     }
-  }
+  },
 }
 
 export default testModule
