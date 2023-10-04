@@ -13,7 +13,10 @@
   },
   "header": {
     "users": "Users",
-    "companies": "Companies"
+    "companies": "Companies",
+    "profile": "Profile",
+    "settings": "Settings",
+    "sign_out": "Sign out"
   },
   "footer": {
     "text": "All rights reserved"

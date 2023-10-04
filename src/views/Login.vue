@@ -1,6 +1,11 @@
 <script setup>
-
 import AuthPageTemplate from "@/components/AuthPageTemplate.vue";
+import {ref} from "vue";
+
+const remember = ref(false)
+const changeRememberValue = () => {
+  remember.value = !remember.value;
+};
 </script>
 
 <template>
@@ -17,12 +22,12 @@ import AuthPageTemplate from "@/components/AuthPageTemplate.vue";
       </div>
       <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="form-check mb-0">
-          <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3">
-          <label class="form-check-label" for="form2Example3">{{$t('login.remember_me')}}</label>
+          <input class="form-check-input me-2" type="checkbox" v-model="remember" @change="changeRememberValue" id="formRememberMe">
+          <label class="form-check-label" for="formRememberMe">{{$t('login.remember_me')}}</label>
         </div>
         <a href="#" class="link-underline link-underline-opacity-0">{{$t('login.forgot_password')}}</a>
       </div>
-      <button class="btn btn-primary btn-lg w-100 mt-3 px-5" type="submit" style="">{{$t('common.sign_in')}}</button>
+      <button class="btn btn-primary btn-lg w-100 mt-3 px-5">{{$t('common.sign_in')}}</button>
     </form>
     <template #note>
       <span>{{$t('login.no_account')}}</span>

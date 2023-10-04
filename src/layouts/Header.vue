@@ -36,12 +36,12 @@
               </svg>
             </button>
             <ul class="dropdown-menu dropdown-menu-end mt-1" aria-labelledby="dropdown1">
-              <li><a class="dropdown-item" href="#">Profile</a></li>
-              <li><a class="dropdown-item" href="#">Settings</a></li>
+              <li><a class="dropdown-item" href="#">{{ $t('header.profile') }}</a></li>
+              <li><a class="dropdown-item" href="#">{{ $t('header.settings') }}</a></li>
               <li>
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">Sign out</a></li>
+              <li><a class="dropdown-item" href="#">{{ $t('header.sign_out') }}</a></li>
             </ul>
           </div>
         </div>
