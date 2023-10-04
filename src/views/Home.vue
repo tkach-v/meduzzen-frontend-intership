@@ -1,19 +1,5 @@
 <script setup>
-import {ref, onMounted, computed} from "vue";
-import axios from "axios";
-
-const apiData = ref(null);
-
-onMounted(async () => {
-  try {
-    const baseURL = import.meta.env.VITE_API_BASE_URL;
-    const {data} = await axios.get(baseURL);
-    apiData.value = data;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-});
-
+import {computed} from "vue";
 import {useStore} from 'vuex'
 
 const store = useStore()
@@ -33,8 +19,6 @@ const setValueAsync = (newValue) => {
   <div class="container text-center">
     <h1 class="fw-bold mt-5">{{ $t("home.header") }}</h1>
     <p class="fs-4">{{ $t("home.description") }}</p>
-    <h2 class="fw-bold mt-5">{{ $t("home.api_header") }} (health check):</h2>
-    <div>{{ JSON.stringify(apiData) }}</div>
     <hr>
     <h2>Test vuex store value:</h2>
     <p>{{ value }}</p>
