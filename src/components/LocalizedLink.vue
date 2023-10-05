@@ -17,8 +17,6 @@ if (typeof props.to === 'string') {
   localizedTo = {...props.to, params: {locale: locale}}
 }
 
-console.log(localizedTo)
-
 </script>
 
 <template>
