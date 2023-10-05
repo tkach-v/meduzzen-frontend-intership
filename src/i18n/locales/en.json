@@ -1,0 +1,63 @@
+{
+  "locale": {
+    "en": "EN",
+    "ua": "UA"
+  },
+  "common": {
+    "about": "About",
+    "sign_in": "Sing In",
+    "sign_up": "Sign Up",
+    "email": "Email address",
+    "password": "Password",
+    "continue_with": "Continue with"
+  },
+  "header": {
+    "users": "Users",
+    "companies": "Companies",
+    "profile": "Profile",
+    "settings": "Settings",
+    "sign_out": "Sign out"
+  },
+  "footer": {
+    "text": "All rights reserved"
+  },
+  "home": {
+    "header": "Project Quizzes",
+    "description": "Welcome to my quiz project! This is the home page of the project.",
+    "api_header": "API Response",
+    "modal_btn_text": "Show Modal"
+  },
+  "about": {
+    "author": "Author",
+    "author_name": "Volodymyr Tkach",
+    "description": "Description",
+    "description_p1": "Quizzes Project is your one-stop solution for creating, customizing, and managing quizzes effortlessly. Perfect for educators, trainers, and quiz enthusiasts, our platform simplifies quiz creation and offers robust group management features.",
+    "description_p2": "With Quizzes Project, you can easily design quizzes that suit your needs, making learning engaging and interactive. Efficiently organize users into groups, simplifying quiz distribution and performance tracking. Dive into valuable insights by analyzing user scores and quiz trends, enabling you to refine your teaching or training strategies."
+  },
+  "users": {
+    "header": "List of users"
+  },
+  "user_profile": {
+    "header": "Profile of user"
+  },
+  "companies": {
+    "header": "List of companies"
+  },
+  "company_profile": {
+    "header": "Profile of company"
+  },
+  "login": {
+    "no_account": "Don't have an account?",
+    "remember_me": "Remember me",
+    "forgot_password": "Forgot password?"
+  },
+  "register": {
+    "have_account": "Already have an account?",
+    "create_password": "Create password",
+    "confirm_password": "Confirm password"
+  },
+  "not_found": {
+    "text": "Sorry, an error has occured, Requested page not found!",
+    "btn_text": "Go to home page"
+  }
+}

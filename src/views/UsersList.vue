@@ -1,5 +1,4 @@
 <script setup>
-import {reactive} from "vue";
 import {useRouter} from "vue-router";
 
 const router = useRouter();
@@ -17,7 +16,7 @@ const goToUserPage = (userId) => {
 
 <template>
   <div class="container fs-5">
-    <h1 class="fw-bold mt-5 mb-4">List of users</h1>
+    <h1 class="fw-bold mt-5 mb-4">{{$t('users.header')}}</h1>
     <table class="table table-striped table-hover">
       <thead>
       <tr>
