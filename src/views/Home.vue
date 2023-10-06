@@ -14,14 +14,14 @@ const setValueAsync = (newValue) => {
   store.dispatch('test/setValueAsync', {value: newValue})
 }
 
-import apiClient from "@/utils/apiClient";
+import apiClient from "@/http/axios/apiClient";
 
 const apiResponse = ref(null);
 
 // Make the API request and handle the response
 apiClient().get('/api/health_check/')
     .then(response => {
-      apiResponse.value = response.data;
+      apiResponse.value = JSON.stringify(response.data);
     })
     .catch(error => {
       console.error('API Error:', error);
@@ -35,7 +35,7 @@ apiClient().get('/api/health_check/')
     <hr>
 
     <h2>Test apiClient response:</h2>
-    <p>{{ JSON.stringify(apiResponse) }}</p>
+    <p>{{ apiResponse }}</p>
     <hr>
 
     <h2>Test vuex store value:</h2>
