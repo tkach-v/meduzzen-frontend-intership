@@ -1,5 +1,5 @@
 <script setup>
-import {computed} from "vue";
+import {computed, ref} from "vue";
 import {useStore} from 'vuex'
 
 const store = useStore()
@@ -13,6 +13,19 @@ const setValue = (newValue) => {
 const setValueAsync = (newValue) => {
   store.dispatch('test/setValueAsync', {value: newValue})
 }
+
+import apiClient from "@/http/axios/apiClient";
+
+const apiResponse = ref(null);
+
+// Make the API request and handle the response
+apiClient().get('/api/health_check/')
+    .then(response => {
+      apiResponse.value = JSON.stringify(response.data);
+    })
+    .catch(error => {
+      console.error('API Error:', error);
+    });
 </script>
 
 <template>
@@ -20,6 +33,11 @@ const setValueAsync = (newValue) => {
     <h1 class="fw-bold mt-5">{{ $t("home.header") }}</h1>
     <p class="fs-4">{{ $t("home.description") }}</p>
     <hr>
+
+    <h2>Test apiClient response:</h2>
+    <p>{{ apiResponse }}</p>
+    <hr>
+
     <h2>Test vuex store value:</h2>
     <p>{{ value }}</p>
     <button class="btn btn-primary me-2" @click="setValue('New Value')">Set Value</button>
