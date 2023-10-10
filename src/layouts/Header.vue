@@ -1,14 +1,37 @@
 <script setup>
-  import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
-  import Tr from "@/i18n/translation"
-  import LocalizedLink from "@/components/LocalizedLink.vue";
+import LanguageSwitcher from "@/components/LanguageSwitcher.vue";
+import LocalizedLink from "@/components/LocalizedLink.vue";
+import {computed} from 'vue';
+import {useStore} from 'vuex';
+import {useRouter} from "vue-router";
+import i18n from "@/i18n/index"
 
-  const navItems = [
-    {text: 'common.about', link: {name: 'about'}},
-    {text: 'header.users', link: {name: 'usersList'}},
-    {text: 'header.companies', link: {name: 'companiesList'}},
-    {text: 'common.sign_in', link: {name: 'login'}},
-  ]
+const navItems = [
+  {text: 'common.about', link: {name: 'about'}},
+  {text: 'header.users', link: {name: 'usersList'}},
+  {text: 'header.companies', link: {name: 'companiesList'}},
+]
+
+
+const store = useStore();
+
+const currentUser = computed(() => store.state.auth.user);
+
+const dropdownItems = currentUser.value ? [
+  {text: 'header.profile', link: {name: 'profile'}},
+  {text: 'header.companies', link: {name: 'companiesList'}},
+] : [
+  {text: 'common.sign_in', link: {name: 'login'}},
+  {text: 'common.sign_up', link: {name: 'register'}}
+]
+
+const logOut = computed(() => {
+  store.dispatch('auth/logout').then(() => {
+    const router = useRouter();
+    router.push({name: 'home', params: {locale: i18n.global.locale.value}});
+  });
+});
+
 </script>
 
 <template>
@@ -30,18 +53,34 @@
                     id="dropdown1"
                     data-bs-toggle="dropdown"
                     aria-expanded="false">
-              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor"
+                   class="bi bi-person-circle" viewBox="0 0 16 16">
                 <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                <path fill-rule="evenodd"
+                      d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
               </svg>
             </button>
             <ul class="dropdown-menu dropdown-menu-end mt-1" aria-labelledby="dropdown1">
-              <li><a class="dropdown-item" href="#">{{ $t('header.profile') }}</a></li>
-              <li><a class="dropdown-item" href="#">{{ $t('header.settings') }}</a></li>
-              <li>
+              <li v-if="currentUser">
+                <div class="dropdown-item fw-bold mb-3">{{ currentUser.email }}</div>
+              </li>
+              <li v-for="(item, index) in dropdownItems"
+                  :key="index">
+                <LocalizedLink class="dropdown-item"
+                               :to="item.link">
+                  {{ $t(item.text) }}
+                </LocalizedLink>
+              </li>
+              <li v-if="currentUser">
                 <hr class="dropdown-divider">
               </li>
-              <li><a class="dropdown-item" href="#">{{ $t('header.sign_out') }}</a></li>
+              <li v-if="currentUser">
+                <a class="dropdown-item"
+                   @click="() => logOut"
+                   style="cursor: pointer">
+                  {{ $t('header.sign_out') }}
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -58,7 +97,7 @@
             <li class="nav-item"
                 v-for="(item, index) in navItems"
                 :key="index">
-              <LocalizedLink class="nav-link fs-5 fw-bold" :to="item.link">{{$t(item.text)}}</LocalizedLink>
+              <LocalizedLink class="nav-link fs-5 fw-bold" :to="item.link">{{ $t(item.text) }}</LocalizedLink>
             </li>
           </ul>
         </div>
@@ -68,16 +107,17 @@
 </template>
 
 <style scoped lang="scss">
-  .user-profile-btn {
-    &:hover {
-      color: #ffffff;
-    }
-    &.show {
-      background-color: #dee2e6;
+.user-profile-btn {
+  &:hover {
+    color: #ffffff;
+  }
 
-      &:hover {
-        color: #000000;
-      }
+  &.show {
+    background-color: #dee2e6;
+
+    &:hover {
+      color: #000000;
     }
   }
+}
 </style>

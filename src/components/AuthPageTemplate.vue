@@ -13,10 +13,6 @@ import LocalizedLink from "@/components/LocalizedLink.vue";
           <img class="btn-icon" src="@/assets/images/icons/google.svg" alt="">
           <span>{{$t('common.continue_with')}} Google</span>
         </button>
-        <button class="btn btn-lg w-100 d-flex align-items-center btn-primary" type="submit">
-          <img class="btn-icon" src="@/assets/images/icons/facebook.svg" alt="">
-          <span>{{$t('common.continue_with')}} Facebook</span>
-        </button>
       </div>
       <div>
         <slot name="note"></slot>
