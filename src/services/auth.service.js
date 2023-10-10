@@ -6,7 +6,7 @@ const GET_USER_URL = '/api/users/me/';
 
 class AuthService {
   login(user) {
-    return apiClient()
+    return apiClient
       .post(LOGIN_URL, {
         email: user.email,
         password: user.password
@@ -20,7 +20,7 @@ class AuthService {
           };
 
           // Make a GET request to /users/me to get the user info
-          return apiClient(userTokens.access)
+          return apiClient
             .get(GET_USER_URL)
             .then(userInfoResponse => {
               const userData = {...userTokens, ...userInfoResponse.data}
@@ -39,7 +39,7 @@ class AuthService {
   }
 
   register(user) {
-    return apiClient()
+    return apiClient
       .post(REGISTER_URL, {
         email: user.email,
         password: user.password

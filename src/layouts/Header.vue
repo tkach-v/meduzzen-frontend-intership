@@ -25,9 +25,9 @@ const dropdownItems = currentUser.value ? [
   {text: 'common.sign_up', link: {name: 'register'}}
 ]
 
+const router = useRouter();
 const logOut = computed(() => {
   store.dispatch('auth/logout').then(() => {
-    const router = useRouter();
     router.push({name: 'home', params: {locale: i18n.global.locale.value}});
   });
 });

@@ -19,7 +19,7 @@ import apiClient from "@/http/axios/apiClient";
 const apiResponse = ref(null);
 
 // Make the API request and handle the response
-apiClient().get('/api/health_check/')
+apiClient.get('/api/health_check/')
     .then(response => {
       apiResponse.value = JSON.stringify(response.data);
     })
