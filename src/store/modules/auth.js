@@ -20,6 +20,11 @@ const auth = {
         }
       );
     },
+    authenticateViaGoogle({commit}, {access, refresh}) {
+      return AuthService.authenticateViaGoogle(access, refresh).then(user => {
+        commit('updateUser', user)
+      })
+    },
     logout({commit}) {
       AuthService.logout();
       commit('updateUser', null);
@@ -36,7 +41,7 @@ const auth = {
         }
       );
     },
-    refreshToken({ commit }, accessToken) {
+    refreshToken({commit}, accessToken) {
       commit('refreshToken', accessToken);
     }
   },
@@ -45,7 +50,7 @@ const auth = {
       state.user = user;
     },
     refreshToken(state, accessToken) {
-      state.user = { ...state.user, accessToken: accessToken };
+      state.user = {...state.user, accessToken: accessToken};
     }
   }
 };

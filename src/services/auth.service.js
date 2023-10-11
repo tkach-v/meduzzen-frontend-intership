@@ -34,6 +34,20 @@ class AuthService {
       });
   }
 
+  authenticateViaGoogle(access, refresh) {
+    localStorage.setItem('user', JSON.stringify({access, refresh}));
+    return apiClient
+      .get(GET_USER_URL)
+      .then(response => {
+        const userData = {access, refresh, ...response.data}
+        localStorage.setItem('user', JSON.stringify(userData));
+        return userData;
+      })
+      .catch(error => {
+        console.error('Failed to fetch user info:', error);
+      });
+  }
+
   logout() {
     localStorage.removeItem('user');
   }

@@ -1,46 +1,47 @@
 <script setup>
-import {computed, ref} from "vue";
-import {useStore} from 'vuex'
+import {onMounted, ref} from 'vue';
+import {useRoute, useRouter} from 'vue-router';
+import apiClient from "@/http/axios/apiClient";
+import i18n from "@/i18n";
+import {useStore} from "vuex";
 
 const store = useStore()
+const route = useRoute()
+const router = useRouter()
+const state = ref(null)
+const code = ref(null)
 
-const value = computed(() => store.state.test.testValue)
+// If state and code params, authenticate user via Google
+onMounted(() => {
+  if (route.query.code) {
+    state.value = route.query.state
+    code.value = route.query.code;
 
-const setValue = (newValue) => {
-  store.commit('test/setValue', {value: newValue})
-}
+    authenticateViaGoogle();
+  }
+});
 
-const setValueAsync = (newValue) => {
-  store.dispatch('test/setValueAsync', {value: newValue})
-}
-
-import apiClient from "@/http/axios/apiClient";
-
-const apiResponse = ref(null);
-
-// Make the API request and handle the response
-apiClient.get('/api/health_check/')
-    .then(response => {
-      apiResponse.value = JSON.stringify(response.data);
-    })
-    .catch(error => {
-      console.error('API Error:', error);
-    });
+const authenticateViaGoogle = async () => {
+  try {
+    const response = await apiClient.post(`/api/o/google-oauth2/?state=${state.value}&code=${code.value}`);
+    store.dispatch('auth/authenticateViaGoogle', response.data).then(
+        () => {
+          router.push({name: 'profile', params: {locale: i18n.global.locale.value}})
+        },
+        (error) => {
+          console.log("Error. Login failed. ", error)
+        }
+    )
+  } catch (error) {
+    console.error('Error:', error);
+    router.push({name: 'home', params: {locale: i18n.global.locale.value}})
+  }
+};
 </script>
 
 <template>
   <div class="container text-center">
     <h1 class="fw-bold mt-5">{{ $t("home.header") }}</h1>
     <p class="fs-4">{{ $t("home.description") }}</p>
-    <hr>
-
-    <h2>Test apiClient response:</h2>
-    <p>{{ apiResponse }}</p>
-    <hr>
-
-    <h2>Test vuex store value:</h2>
-    <p>{{ value }}</p>
-    <button class="btn btn-primary me-2" @click="setValue('New Value')">Set Value</button>
-    <button class="btn btn-primary" @click="setValueAsync('Async Value')">Set Value Async</button>
   </div>
 </template>
