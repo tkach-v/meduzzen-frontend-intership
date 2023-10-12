@@ -38,9 +38,7 @@ const handleRegister = (user) => {
       (data) => {
         message.value = t('register.successful')
         successful.value = true
-        setTimeout(() => {
-          router.push({name: 'login', params: {locale: i18n.global.locale.value}});
-        }, 5000);
+        router.push({name: 'login', params: {locale: i18n.global.locale.value}});
       },
       (error) => {
         message.value = t('register.failed')

@@ -5,11 +5,11 @@ const REGISTER_URL = '/api/users/';
 const GET_USER_URL = '/api/users/me/';
 
 class AuthService {
-  login(user) {
+  login({email, password}) {
     return apiClient
       .post(LOGIN_URL, {
-        email: user.email,
-        password: user.password
+        email: email,
+        password: password
       })
       .then(loginResponse => {
         if (loginResponse.data.access) {
@@ -52,11 +52,11 @@ class AuthService {
     localStorage.removeItem('user');
   }
 
-  register(user) {
+  register({email, password}) {
     return apiClient
       .post(REGISTER_URL, {
-        email: user.email,
-        password: user.password
+        email: email,
+        password: password
       });
   }
 }

@@ -76,7 +76,7 @@ const logOut = computed(() => {
               </li>
               <li v-if="currentUser">
                 <a class="dropdown-item"
-                   @click="() => logOut"
+                   @click="logOut"
                    style="cursor: pointer">
                   {{ $t('header.sign_out') }}
                 </a>
