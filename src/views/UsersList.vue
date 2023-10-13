@@ -1,13 +1,18 @@
 <script setup>
 import {useRouter} from "vue-router";
+import {ref} from "vue";
+import userService from "@/services/user.service";
 
 const router = useRouter();
 
-const UsersList = [
-  {id: 1, username: 'testusername1'},
-  {id: 2, username: 'testusername2'},
-  {id: 3, username: 'testusername3'},
-];
+const usersList = ref(null);
+userService.getUsers()
+    .then(response => {
+      usersList.value = response.data.results;
+    })
+    .catch(error => {
+      console.error('API Error:', error);
+    });
 
 const goToUserPage = (userId) => {
   router.push({name: 'userProfile', params: {id: userId}});
@@ -21,13 +26,13 @@ const goToUserPage = (userId) => {
       <thead>
       <tr>
         <th scope="col">#</th>
-        <th scope="col">Username</th>
+        <th scope="col">Email</th>
       </tr>
       </thead>
       <tbody>
-      <tr v-for="(user) in UsersList" :key="user.id" @click="goToUserPage(user.id)">
+      <tr v-for="(user) in usersList" :key="user.id" @click="goToUserPage(user.id)">
         <th scope="row">{{ user.id }}</th>
-        <td>@{{ user.username }}</td>
+        <td>{{ user.email }}</td>
       </tr>
       </tbody>
     </table>

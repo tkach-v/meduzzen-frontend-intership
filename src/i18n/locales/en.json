@@ -48,13 +48,25 @@
   },
   "login": {
     "no_account": "Don't have an account?",
-    "remember_me": "Remember me",
-    "forgot_password": "Forgot password?"
+    "forgot_password": "Forgot password?",
+    "failed": "Invalid email address or password."
   },
   "register": {
     "have_account": "Already have an account?",
     "create_password": "Create password",
-    "confirm_password": "Confirm password"
+    "confirm_password": "Confirm password",
+    "successful": "User successfully created. Redirect to the login page.",
+    "failed": "An error occurred while creating the user."
+  },
+  "auth": {
+    "email_required": "Email is required!",
+    "password_required": "Password is required!",
+    "email_invalid": "Email is invalid!",
+    "email_large": "Must be maximum 50 characters!",
+    "password_small": "Must be at least 8 characters!",
+    "password_large": "Must be maximum 40 characters!",
+    "password_confirm_required": "Password confirmation is required!",
+    "password_confirm_not_match": "Password do not match!"
   },
   "not_found": {
     "text": "Sorry, an error has occured, Requested page not found!",
