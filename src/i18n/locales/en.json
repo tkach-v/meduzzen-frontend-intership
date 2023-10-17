@@ -9,7 +9,8 @@
     "sign_up": "Sign Up",
     "email": "Email address",
     "password": "Password",
-    "continue_with": "Continue with"
+    "continue_with": "Continue with",
+    "cancel": "Cancel"
   },
   "header": {
     "users": "Users",
@@ -38,7 +39,23 @@
     "header": "List of users"
   },
   "user_profile": {
-    "header": "Profile of user"
+    "change_avatar": "Change avatar",
+    "joined": "Joined",
+    "change_user_info": "Change user information",
+    "change_user_password": "Change user password",
+    "first_name_required": "First name is required!",
+    "last_name_required": "Last name is required!",
+    "name_large": "Must be maximum 50 characters!",
+    "first_name": "First name",
+    "last_name": "Last name",
+    "save": "Save",
+    "new_password": "Create a new password",
+    "new_password_confirm": "Confirm a new password",
+    "update_error": "An error occurred while updating user information.",
+    "avatar_required": "Avatar is required!",
+    "avatar_invalid_type": "Not a valid image type",
+    "delete_user": "Delete user",
+    "delete_user_confirm": "This action cannot be undone. All your data will be permanently removed."
   },
   "companies": {
     "header": "List of companies"
