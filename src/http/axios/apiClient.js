@@ -37,10 +37,10 @@ apiClient.interceptors.response.use(
             refresh: TokenService.getLocalRefreshToken(),
           });
 
-          const {accessToken} = rs.data;
+          const {access} = rs.data;
 
-          await store.dispatch('auth/refreshToken', accessToken);
-          TokenService.updateLocalAccessToken(accessToken);
+          await store.dispatch('auth/refreshToken', access);
+          TokenService.updateLocalAccessToken(access);
 
           return apiClient(originalConfig);
         } catch (_error) {
