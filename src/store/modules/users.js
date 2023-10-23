@@ -10,13 +10,15 @@ const actions = {
   async fetchUsers({commit}, url) {
     try {
       const response = await apiClient.get(url);
+
       const { results, count, next } = response.data;
 
-      commit('setUsersList', {results, count})
+      commit('setUsersList', {users: results, totalUsersCount: count})
 
       if (next) {
         await actions.fetchUsers({commit}, next);
       }
+
     } catch (error) {
       console.error('API Error:', error)
       commit('setUsersList', { users: [], totalUsersCount: 0 })

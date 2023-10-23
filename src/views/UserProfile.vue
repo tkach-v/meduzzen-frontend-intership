@@ -129,13 +129,12 @@ const handleChangeAvatar = async (userData) => {
 };
 
 let deleteUserModal = ref(null);
-
 function showDeleteUserModal() {
   deleteUserModal.value.show();
 }
 
 const deleteUserMessage = ref('')
-const handleDeleteUser = async ({password}) => {
+const handleDeleteUser = async () => {
   try {
     await apiClient.delete(`/api/users/delete/${userInfo.value.id}/`)
     store.dispatch('auth/logout').then(() => {
@@ -145,6 +144,31 @@ const handleDeleteUser = async ({password}) => {
     deleteUserMessage.value = t('user_profile.update_error')
   }
 }
+
+let createCompanyModal = ref(null);
+function showCreateCompanyModal() {
+  createCompanyModal.value.show();
+}
+
+const createCompanySchema = yup.object().shape({
+  name: yup
+      .string()
+      .required(t('company_profile.name_required')),
+  description: yup
+      .string()
+      .required(t('company_profile.description_required'))
+});
+
+const createCompanyMessage = ref('')
+const handleCompanyCreation = async (companyData, actions) => {
+  try {
+    await apiClient.post(`/api/companies/`, companyData)
+    actions.resetForm()
+  } catch (err) {
+    createCompanyMessage.value = t('company_profile.update_error')
+  }
+}
+
 </script>
 
 <template>
@@ -279,34 +303,71 @@ const handleDeleteUser = async ({password}) => {
             </div>
           </div>
         </div>
-        <button v-if="currentUser.id === userInfo.id"
-                class="mt-4 btn btn-danger"
-                type="button"
-                @click="showDeleteUserModal"
-        >{{ $t('user_profile.delete_user') }}
-        </button>
-        <Modal v-if="currentUser.id === userInfo.id"
-               ref="deleteUserModal"
-               :title="t('user_profile.delete_user')">
-          <p>{{ $t('user_profile.delete_user_confirm') }}</p>
-          <div class="d-flex gap-2 justify-content-end">
-            <button class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                    aria-label="Close"
-            >{{ $t('common.cancel') }}
-            </button>
-            <button class="btn btn-danger"
-                    data-bs-dismiss="modal"
-                    @click="handleDeleteUser"
-            >{{ $t('user_profile.delete_user') }}
-            </button>
-          </div>
-          <div v-if="deleteUserMessage"
-               class="alert mt-3 alert-danger"
-          >
-            {{ deleteUserMessage }}
-          </div>
-        </Modal>
+        <div v-if="currentUser.id === userInfo.id">
+          <button class="mt-4 btn btn-primary me-2"
+                  type="button"
+                  @click="showCreateCompanyModal"
+          >{{ $t('user_profile.create_company') }}
+          </button>
+          <button class="mt-4 btn btn-danger"
+                  type="button"
+                  @click="showDeleteUserModal"
+          >{{ $t('user_profile.delete_user') }}
+          </button>
+          <Modal ref="deleteUserModal"
+                 :title="t('user_profile.delete_user')">
+            <p>{{ $t('user_profile.delete_user_confirm') }}</p>
+            <div class="d-flex gap-2 justify-content-end">
+              <button class="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+              >{{ $t('common.cancel') }}
+              </button>
+              <button class="btn btn-danger"
+                      data-bs-dismiss="modal"
+                      @click="handleDeleteUser"
+              >{{ $t('user_profile.delete_user') }}
+              </button>
+            </div>
+            <div v-if="deleteUserMessage"
+                 class="alert mt-3 alert-danger"
+            >
+              {{ deleteUserMessage }}
+            </div>
+          </Modal>
+          <Modal ref="createCompanyModal"
+                 :title="t('user_profile.create_company')">
+            <Form @submit="handleCompanyCreation" :validation-schema="createCompanySchema">
+              <div class="form-floating mb-3">
+                <Field name="name"
+                       type="text"
+                       class="form-control"
+                       placeholder="user@example.com"/>
+                <label for="name">{{ $t('company_profile.name') }}</label>
+                <ErrorMessage name="name" class="d-flex mt-2 invalid-feedback"/>
+              </div>
+              <div class="form-floating mb-3">
+                <Field
+                    name="description"
+                    as="textarea"
+                    type="text"
+                    class="form-control"
+                    placeholder="Description"
+                    style="height: 125px"/>
+                <label for="description">{{ $t('company_profile.description') }}</label>
+                <ErrorMessage name="description" class="d-flex mt-2 invalid-feedback"/>
+              </div>
+              <button class="btn btn-primary btn-lg w-100 mt-3 px-5">{{ $t('common.create') }}</button>
+            </Form>
+            <div v-if="createCompanyMessage"
+                 class="alert mt-3 alert-danger"
+            >
+              {{ createCompanyMessage }}
+            </div>
+          </Modal>
+        </div>
+
+
       </div>
     </div>
   </div>

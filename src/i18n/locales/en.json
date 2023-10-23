@@ -10,7 +10,9 @@
     "email": "Email address",
     "password": "Password",
     "continue_with": "Continue with",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create"
   },
   "header": {
     "users": "Users",
@@ -54,14 +56,29 @@
     "update_error": "An error occurred while updating user information.",
     "avatar_required": "Avatar is required!",
     "avatar_invalid_type": "Not a valid image type",
+    "avatar_invalid_size": "The maximum allowed size is 1MB",
     "delete_user": "Delete user",
-    "delete_user_confirm": "This action cannot be undone. All your data will be permanently removed."
+    "delete_user_confirm": "This action cannot be undone. All your data will be permanently removed.",
+    "create_company": "Create a company",
+    "company_create_error": "An error occurred while creating a company."
   },
   "companies": {
     "header": "List of companies"
   },
   "company_profile": {
-    "header": "Profile of company"
+    "created_at": "Created at",
+    "description": "Description",
+    "user_owner": "You are the owner of this company",
+    "user_member": "You are the member of this company",
+    "user_not_member": "You are not the member of this company",
+    "change_info": "Change company information",
+    "name_required": "Name is required!",
+    "description_required": "Description is required!",
+    "name": "Name",
+    "update_error": "An error occurred while updating company information.",
+    "delete_company": "Delete company",
+    "delete_company_confirm": "This action cannot be undone. All company data will be permanently removed.",
+    "members": "Members"
   },
   "login": {
     "no_account": "Don't have an account?",
