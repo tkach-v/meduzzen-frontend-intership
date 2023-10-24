@@ -8,6 +8,7 @@ import * as yup from "yup";
 import {useI18n} from "vue-i18n";
 import apiClient from "@/http/axios/apiClient";
 import Modal from "@/components/Modal.vue";
+import {fetchCompanyById} from "@/services/company.service";
 
 const {t} = useI18n()
 const route = useRoute()
@@ -18,21 +19,100 @@ const currentUser = computed(() => store.state.auth.user)
 const userId = computed(() => route.params.id)
 const isOwner = computed(() => currentUser.value.id == userId.value);
 const userInfo = computed(() => store.state.users.user);
+const invitationList = ref([])
+const pendingInvitations = computed(() => {
+  return invitationList.value.filter(invitation => invitation.status === 4);
+});
+const resolvedInvitations = computed(() => {
+  return invitationList.value.filter(invitation => invitation.status !== 4);
+});
+const userCompanies = ref([])
+const requestsList = ref([])
+const pendingRequests = computed(() => {
+  return requestsList.value.filter(request => request.status === 4);
+});
+const resolvedRequests = computed(() => {
+  return requestsList.value.filter(request => request.status !== 4);
+});
+
+async function fetchUserInvitations(url) {
+  try {
+    const response = await apiClient.get(url)
+
+    const {results, next} = response.data
+    for (const invitation of results) {
+      invitation.company = await fetchCompanyById(invitation.company)
+      invitationList.value = [...invitationList.value, invitation];
+    }
+
+    if (next) {
+      await fetchUserInvitations(next)
+    }
+
+  } catch (error) {
+    console.error('API Error:', error)
+  }
+}
+
+async function fetchUserCompanies(url) {
+  try {
+    const response = await apiClient.get(url)
+
+    const {results, next} = response.data
+    userCompanies.value = [...userCompanies.value, ...results]
+
+    if (next) {
+      await fetchUserCompanies(next)
+    }
+
+  } catch (error) {
+    console.error('API Error:', error)
+  }
+}
+
+async function fetchUserRequests(url) {
+  try {
+    const response = await apiClient.get(url)
+
+    const {results, next} = response.data
+    for (const request of results) {
+      request.company = await fetchCompanyById(request.company)
+      requestsList.value = [...requestsList.value, request];
+    }
+
+    if (next) {
+      await fetchUserRequests(next)
+    }
+
+  } catch (error) {
+    console.error('API Error:', error)
+  }
+}
 
 const formatDate = (dateString) => {
   const createdAt = new Date(dateString)
   return createdAt.toLocaleDateString()
 };
 
-onMounted(() => {
+const goToCompanyPage = (companyId) => {
+  router.push({name: 'companyProfile', params: {id: companyId}});
+};
+
+onMounted(async () => {
   if (userId.value && isOwner.value) {
-    router.push({name: 'profile', params: {locale: i18n.global.locale.value}})
+    await router.push({name: 'profile', params: {locale: i18n.global.locale.value}})
   }
 
   if (userId.value) {
-    store.dispatch('users/fetchUserById', userId.value)
+    await store.dispatch('users/fetchUserById', userId.value)
   } else {
-    store.dispatch('users/fetchUserById', currentUser.value.id)
+    await store.dispatch('users/fetchUserById', currentUser.value.id)
+  }
+
+  if (currentUser.value.id === userInfo.value.id) {
+    await fetchUserCompanies('/api/users/me/companies/')
+    await fetchUserInvitations('/api/users/me/invitations/')
+    await fetchUserRequests('/api/users/me/requests/')
   }
 });
 
@@ -128,7 +208,9 @@ const handleChangeAvatar = async (userData) => {
   }
 };
 
+// delete user
 let deleteUserModal = ref(null);
+
 function showDeleteUserModal() {
   deleteUserModal.value.show();
 }
@@ -145,7 +227,9 @@ const handleDeleteUser = async () => {
   }
 }
 
+// company creation
 let createCompanyModal = ref(null);
+
 function showCreateCompanyModal() {
   createCompanyModal.value.show();
 }
@@ -166,6 +250,116 @@ const handleCompanyCreation = async (companyData, actions) => {
     actions.resetForm()
   } catch (err) {
     createCompanyMessage.value = t('company_profile.update_error')
+  }
+}
+
+// decline invitation
+let declineInvitationModal = ref(null);
+
+function showDeclineInvitationModal() {
+  declineInvitationModal.value.show();
+}
+
+const invitationSchema = yup.object().shape({
+  invitation: yup
+      .number()
+      .required(t('company_profile.invitation_id_required'))
+});
+const declineInvitationMessage = ref('')
+const handleDeclineInvitation = async (invitationData, actions) => {
+  try {
+    await apiClient.post(`/api/users/me/invitations/${invitationData.invitation}/decline/`, {})
+    actions.resetForm()
+    declineInvitationMessage.value = ""
+  } catch (err) {
+    declineInvitationMessage.value = "Error: " + err.response.data.detail
+  }
+}
+
+// accept invitation
+let acceptInvitationModal = ref(null);
+
+function showAcceptInvitationModal() {
+  acceptInvitationModal.value.show();
+}
+
+const acceptInvitationMessage = ref('')
+const handleAcceptInvitation = async (invitationData, actions) => {
+  try {
+    await apiClient.post(`/api/users/me/invitations/${invitationData.invitation}/accept/`, {})
+    actions.resetForm()
+    acceptInvitationMessage.value = ""
+  } catch (err) {
+    acceptInvitationMessage.value = "Error: " + err.response.data.detail
+  }
+}
+
+// leave company
+let leaveCompanyModal = ref(null);
+
+function showLeaveCompanyModal() {
+  leaveCompanyModal.value.show();
+}
+
+const leaveCompanySchema = yup.object().shape({
+  company: yup
+      .number()
+      .required(t('user_profile.company_id_required'))
+});
+const leaveCompanyMessage = ref('')
+const handleLeaveCompany = async (companyData, actions) => {
+  try {
+    await apiClient.post(`/api/users/me/companies/${companyData.company}/leave/`, {})
+    actions.resetForm()
+    leaveCompanyMessage.value = ""
+  } catch (err) {
+    leaveCompanyMessage.value = "Error: " + err.response.data.detail
+  }
+}
+
+// create request
+let createRequestModal = ref(null);
+
+function showCreateRequestModal() {
+  createRequestModal.value.show();
+}
+
+const createRequestSchema = yup.object().shape({
+  company: yup
+      .number()
+      .required(t('user_profile.company_id_required'))
+});
+const createRequestMessage = ref('')
+const handleCreateRequest = async (companyData, actions) => {
+  try {
+    await apiClient.post('/api/users/me/requests/', companyData)
+    actions.resetForm()
+    createRequestMessage.value = ""
+  } catch (err) {
+    createRequestMessage.value = "Error: " + JSON.stringify(err.response.data)
+  }
+}
+
+// cancel request
+let cancelRequestModal = ref(null);
+
+function showCancelRequestModal() {
+  cancelRequestModal.value.show();
+}
+
+const cancelRequestSchema = yup.object().shape({
+  request: yup
+      .number()
+      .required(t('user_profile.request_id_required'))
+});
+const cancelRequestMessage = ref('')
+const handleCancelRequest = async (requestData, actions) => {
+  try {
+    await apiClient.post(`/api/users/me/requests/${requestData.request}/cancel/`, {})
+    actions.resetForm()
+    cancelRequestMessage.value = ""
+  } catch (err) {
+    cancelRequestMessage.value = t('user_profile.requests_cancel_error')
   }
 }
 
@@ -302,6 +496,277 @@ const handleCompanyCreation = async (companyData, actions) => {
               </div>
             </div>
           </div>
+          <div class="accordion-item"
+               v-if="currentUser.id === userInfo.id">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#collapseUserCompanies"
+                      aria-expanded="false"
+                      aria-controls="collapseUserCompanies"
+              >{{ $t('user_profile.companies') }}
+              </button>
+            </h2>
+            <div id="collapseUserCompanies" class="accordion-collapse collapse" data-bs-parent="#profileAccordion">
+              <div class="accordion-body">
+                <button class="mb-4 btn btn-danger"
+                        type="button"
+                        @click="showLeaveCompanyModal"
+                >{{ $t('user_profile.leave_company') }}
+                </button>
+                <Modal ref="leaveCompanyModal"
+                       :title="t('user_profile.leave_company')">
+                  <Form @submit="handleLeaveCompany"
+                        :validation-schema="leaveCompanySchema">
+                    <div class="form-floating mb-3">
+                      <Field name="company"
+                             type="number"
+                             class="form-control"
+                             placeholder="Company"/>
+                      <label for="company">{{ $t('user_profile.company_id') }}</label>
+                      <ErrorMessage name="company" class="d-flex mt-2 invalid-feedback"/>
+                    </div>
+                    <button class="d-flex btn btn-danger px-3 ms-auto">{{ $t('user_profile.leave_company') }}</button>
+                  </Form>
+                  <div v-if="leaveCompanyMessage"
+                       class="alert mt-3 alert-danger"
+                  >
+                    {{ leaveCompanyMessage }}
+                  </div>
+                </Modal>
+                <h4>{{ $t('user_profile.user_companies') }}:</h4>
+                <table class="table table-striped table-hover mb-5">
+                  <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(company) in userCompanies"
+                      :key="company.id"
+                      @click="goToCompanyPage(company.id)">
+                    <th scope="row">{{ company.id }}</th>
+                    <td>{{ company.name }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item"
+               v-if="currentUser.id === userInfo.id">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#collapseUserInvitations"
+                      aria-expanded="false"
+                      aria-controls="collapseUserInvitations"
+              >{{ $t('company_profile.invitations') }}
+              </button>
+            </h2>
+            <div id="collapseUserInvitations" class="accordion-collapse collapse" data-bs-parent="#profileAccordion">
+              <div class="accordion-body">
+                <button class="mb-4 btn btn-primary"
+                        type="button"
+                        @click="showAcceptInvitationModal"
+                >{{ $t('user_profile.accept_invitation') }}
+                </button>
+                <Modal ref="acceptInvitationModal"
+                       :title="t('user_profile.accept_invitation')">
+                  <Form @submit="handleAcceptInvitation"
+                        :validation-schema="invitationSchema">
+                    <div class="form-floating mb-3">
+                      <Field name="invitation"
+                             type="number"
+                             class="form-control"
+                             placeholder="Invitation"/>
+                      <label for="invitation">{{ $t('company_profile.invitation_id') }}</label>
+                      <ErrorMessage name="invitation" class="d-flex mt-2 invalid-feedback"/>
+                    </div>
+                    <button class="d-flex btn btn-danger px-3 ms-auto">{{ $t('company_profile.revoke') }}</button>
+                  </Form>
+                  <div v-if="acceptInvitationMessage"
+                       class="alert mt-3 alert-danger"
+                  >
+                    {{ acceptInvitationMessage }}
+                  </div>
+                </Modal>
+                <button class="ms-2 mb-4 btn btn-danger"
+                        type="button"
+                        @click="showDeclineInvitationModal"
+                >{{ $t('user_profile.decline_invitation') }}
+                </button>
+                <Modal ref="declineInvitationModal"
+                       :title="t('user_profile.decline_invitation')">
+                  <Form @submit="handleDeclineInvitation"
+                        :validation-schema="invitationSchema">
+                    <div class="form-floating mb-3">
+                      <Field name="invitation"
+                             type="number"
+                             class="form-control"
+                             placeholder="Invitation"/>
+                      <label for="invitation">{{ $t('company_profile.invitation_id') }}</label>
+                      <ErrorMessage name="invitation" class="d-flex mt-2 invalid-feedback"/>
+                    </div>
+                    <button class="d-flex btn btn-danger px-3 ms-auto">{{ $t('company_profile.revoke') }}</button>
+                  </Form>
+                  <div v-if="declineInvitationMessage"
+                       class="alert mt-3 alert-danger"
+                  >
+                    {{ declineInvitationMessage }}
+                  </div>
+                </Modal>
+                <h4>{{ $t('company_profile.pending_invitations') }}:</h4>
+                <table class="table table-striped table-hover mb-5">
+                  <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Company</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(invitation) in pendingInvitations"
+                      :key="invitation.id"
+                      @click="goToCompanyPage(invitation.company.id)">
+                    <th scope="row">{{ invitation.id }}</th>
+                    <td>{{ invitation.company.name }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+                <h4>{{ $t('company_profile.resolved_invitations') }}:</h4>
+                <table class="table table-striped table-hover">
+                  <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Company</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(invitation) in resolvedInvitations"
+                      :key="invitation.id"
+                      @click="goToCompanyPage(invitation.company.id)">
+                    <th scope="row">{{ invitation.id }}</th>
+                    <td>{{ invitation.company.name }}</td>
+                    <td>{{
+                        invitation.status === 1 ? t('company_profile.accepted') :
+                            (invitation.status === 2 ? t('company_profile.declined') : t('company_profile.revoked'))
+                      }}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item"
+               v-if="currentUser.id === userInfo.id">
+            <h2 class="accordion-header">
+              <button class="accordion-button collapsed"
+                      type="button"
+                      data-bs-toggle="collapse"
+                      data-bs-target="#collapseUserRequests"
+                      aria-expanded="false"
+                      aria-controls="collapseUserRequests"
+              >{{ $t('company_profile.requests') }}
+              </button>
+            </h2>
+            <div id="collapseUserRequests" class="accordion-collapse collapse" data-bs-parent="#profileAccordion">
+              <div class="accordion-body">
+                <button class="mb-4 btn btn-primary"
+                        type="button"
+                        @click="showCreateRequestModal"
+                >{{ $t('user_profile.create_request') }}
+                </button>
+                <Modal ref="createRequestModal"
+                       :title="t('user_profile.create_request')">
+                  <Form @submit="handleCreateRequest"
+                        :validation-schema="createRequestSchema">
+                    <div class="form-floating mb-3">
+                      <Field name="company"
+                             type="number"
+                             class="form-control"
+                             placeholder="Invitation"/>
+                      <label for="company">{{ $t('user_profile.company_id') }}</label>
+                      <ErrorMessage name="company" class="d-flex mt-2 invalid-feedback"/>
+                    </div>
+                    <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('user_profile.create_request') }}</button>
+                  </Form>
+                  <div v-if="createRequestMessage"
+                       class="alert mt-3 alert-danger"
+                  >
+                    {{ createRequestMessage }}
+                  </div>
+                </Modal>
+                <button class="ms-2 mb-4 btn btn-danger"
+                        type="button"
+                        @click="showCancelRequestModal"
+                >{{ $t('user_profile.cancel_request') }}
+                </button>
+                <Modal ref="cancelRequestModal"
+                       :title="t('user_profile.cancel_request')">
+                  <Form @submit="handleCancelRequest"
+                        :validation-schema="cancelRequestSchema">
+                    <div class="form-floating mb-3">
+                      <Field name="request"
+                             type="number"
+                             class="form-control"
+                             placeholder="Invitation"/>
+                      <label for="request">{{ $t('user_profile.request_id') }}</label>
+                      <ErrorMessage name="request" class="d-flex mt-2 invalid-feedback"/>
+                    </div>
+                    <button class="d-flex btn btn-danger px-3 ms-auto">{{ $t('user_profile.cancel_request') }}</button>
+                  </Form>
+                  <div v-if="cancelRequestMessage"
+                       class="alert mt-3 alert-danger"
+                  >
+                    {{ cancelRequestMessage }}
+                  </div>
+                </Modal>
+                <h4>{{ $t('company_profile.pending_requests') }}:</h4>
+                <table class="table table-striped table-hover mb-5">
+                  <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Company</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(request) in pendingRequests"
+                      :key="request.id"
+                      @click="goToCompanyPage(request.company.id)">
+                    <th scope="row">{{ request.id }}</th>
+                    <td>{{ request.company.name }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+                <h4>{{ $t('company_profile.resolved_requests') }}:</h4>
+                <table class="table table-striped table-hover">
+                  <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Company</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="(request) in resolvedRequests"
+                      :key="request.id"
+                      @click="goToCompanyPage(request.company.id)">
+                    <th scope="row">{{ request.id }}</th>
+                    <td>{{ request.company.name }}</td>
+                    <td>{{
+                        request.status === 1 ? t('company_profile.approved') :
+                            (request.status === 2 ? t('company_profile.rejected') : t('company_profile.cancelled'))
+                      }}
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
         <div v-if="currentUser.id === userInfo.id">
           <button class="mt-4 btn btn-primary me-2"
@@ -366,9 +831,13 @@ const handleCompanyCreation = async (companyData, actions) => {
             </div>
           </Modal>
         </div>
-
-
       </div>
     </div>
   </div>
 </template>
+
+<style scoped lang="scss">
+tr {
+  cursor: pointer;
+}
+</style>
