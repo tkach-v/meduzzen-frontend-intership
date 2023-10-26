@@ -13,6 +13,7 @@ import AccordionItem from "@/components/AccordionItem.vue";
 import CompanyInvitations from "@/components/CompanyInvitations.vue";
 import CompanyRequests from "@/components/CompanyRequests.vue";
 import UniversalTable from "@/components/UniversalTable.vue";
+import CompanyAdmins from "@/components/CompanyAdmins.vue";
 
 const {t} = useI18n()
 const route = useRoute()
@@ -214,6 +215,15 @@ onMounted(async () => {
             <UniversalTable :columns="userListColumns"
                             :data="membersList"
                             :rowClick="goToUserPage"/>
+          </AccordionItem>
+          <AccordionItem
+              v-if="isOwner"
+              :itemTitle="t('company_profile.admins')"
+              itemSuffix="Admins"
+              parentSelector="#profileAccordion"
+          >
+            <CompanyAdmins :companyId="companyInfo.id"
+                           :admins="companyInfo.administrators"/>
           </AccordionItem>
           <AccordionItem
               v-if="isOwner"

@@ -116,7 +116,12 @@
     "user_id_required": "Member ID is required",
     "user_id": "Member ID",
     "approve_request": "Approve request",
-    "reject_request": "Reject request"
+    "reject_request": "Reject request",
+    "admins": "Administrators",
+    "appoint_admin": "Appoint administrator",
+    "remove_admin": "Remove administrator",
+    "admin_id": "Administrator ID",
+    "admin_id_required": "Administrator ID is required"
   },
   "login": {
     "no_account": "Don't have an account?",
