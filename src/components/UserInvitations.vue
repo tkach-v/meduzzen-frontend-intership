@@ -55,7 +55,7 @@ const invitationSchema = yup.object().shape({
 });
 const handleDeclineInvitation = async (invitationData, actions) => {
   try {
-    await apiClient.post(`/api/users/me/invitations/${invitationData.invitation}/decline/`, {})
+    await apiClient.post(`/api/users/me/invitations/${invitationData.invitation}/decline/`)
     actions.resetForm()
     declineInvitationMessage.value = ""
   } catch (err) {
@@ -69,7 +69,7 @@ function showAcceptInvitationModal() {
 
 const handleAcceptInvitation = async (invitationData, actions) => {
   try {
-    await apiClient.post(`/api/users/me/invitations/${invitationData.invitation}/accept/`, {})
+    await apiClient.post(`/api/users/me/invitations/${invitationData.invitation}/accept/`)
     actions.resetForm()
     acceptInvitationMessage.value = ""
   } catch (err) {

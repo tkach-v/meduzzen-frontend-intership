@@ -59,7 +59,7 @@ const requestSchema = yup.object().shape({
 });
 const handleApproveRequest = async (requestData, actions) => {
   try {
-    await apiClient.post(`/api/companies/${props.companyId}/requests/${requestData.request}/approve/`, {})
+    await apiClient.post(`/api/companies/${props.companyId}/requests/${requestData.request}/approve/`)
     actions.resetForm()
     approveRequestMessage.value = ""
   } catch (err) {
@@ -74,7 +74,7 @@ function showRejectRequestModal() {
 
 const handleRejectRequest = async (requestData, actions) => {
   try {
-    await apiClient.post(`/api/companies/${props.companyId}/requests/${requestData.request}/reject/`, {})
+    await apiClient.post(`/api/companies/${props.companyId}/requests/${requestData.request}/reject/`)
     actions.resetForm()
     rejectRequestMessage.value = ""
   } catch (err) {

@@ -77,7 +77,7 @@ const revokeInvitationSchema = yup.object().shape({
 });
 const handleRevokeInvitation = async (invitationData, actions) => {
   try {
-    await apiClient.post(`/api/companies/${props.companyId}/invitations/${invitationData.invitation}/revoke/`, {})
+    await apiClient.post(`/api/companies/${props.companyId}/invitations/${invitationData.invitation}/revoke/`)
     actions.resetForm()
     revokeInvitationMessage.value = ""
   } catch (err) {

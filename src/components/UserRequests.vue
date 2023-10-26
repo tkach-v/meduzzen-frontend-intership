@@ -73,7 +73,7 @@ const cancelRequestSchema = yup.object().shape({
 });
 const handleCancelRequest = async (requestData, actions) => {
   try {
-    await apiClient.post(`/api/users/me/requests/${requestData.request}/cancel/`, {})
+    await apiClient.post(`/api/users/me/requests/${requestData.request}/cancel/`)
     actions.resetForm()
     cancelRequestMessage.value = ""
   } catch (err) {
