@@ -7,9 +7,15 @@ import Modal from "@/components/Modal.vue";
 import apiClient from "@/http/axios/apiClient";
 import {fetchCompanyById} from "@/services/company.service";
 import {useRouter} from "vue-router";
+import UniversalTable from "@/components/UniversalTable.vue";
 
 const {t} = useI18n()
 const router = useRouter()
+
+const companyListColumns = [
+  {label: "#", field: "id"},
+  {label: "Name", field: "name"},
+]
 
 const userCompanies = ref([])
 let leaveCompanyModal = ref(null);
@@ -86,22 +92,9 @@ onMounted(async () => {
     </div>
   </Modal>
   <h4>{{ $t('user_profile.user_companies') }}:</h4>
-  <table class="table table-striped table-hover mb-5">
-    <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Name</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr v-for="(company) in userCompanies"
-        :key="company.id"
-        @click="goToCompanyPage(company.id)">
-      <th scope="row">{{ company.id }}</th>
-      <td>{{ company.name }}</td>
-    </tr>
-    </tbody>
-  </table>
+  <UniversalTable :columns="companyListColumns"
+                  :data="userCompanies"
+                  :rowClick="goToCompanyPage"/>
 </template>
 
 <style scoped lang="scss">

@@ -7,9 +7,28 @@ import Modal from "@/components/Modal.vue";
 import apiClient from "@/http/axios/apiClient";
 import {fetchCompanyById} from "@/services/company.service";
 import {useRouter} from "vue-router";
+import UniversalTable from "@/components/UniversalTable.vue";
 
 const {t} = useI18n()
 const router = useRouter()
+
+const statusMapping = {
+  1: 'Accepted',
+  2: 'Declined',
+  3: 'Revoked',
+  4: 'Pending',
+}
+
+const pendingInvitationsColumns = [
+  {label: "#", field: "id"},
+  {label: "Company", field: "company.name"},
+]
+
+const revolvedInvitationsColumns = [
+  {label: "#", field: "id"},
+  {label: "Company", field: "company.name"},
+  {label: "Status", field: "status"},
+]
 
 const invitationList = ref([])
 let declineInvitationModal = ref(null);
@@ -18,10 +37,10 @@ let acceptInvitationModal = ref(null);
 const acceptInvitationMessage = ref('')
 
 const pendingInvitations = computed(() => {
-  return invitationList.value.filter(invitation => invitation.status === 4);
+  return invitationList.value.filter(invitation => invitation.status === 'Pending');
 });
 const resolvedInvitations = computed(() => {
-  return invitationList.value.filter(invitation => invitation.status !== 4);
+  return invitationList.value.filter(invitation => invitation.status !== 'Pending');
 });
 
 async function fetchUserInvitations(url) {
@@ -31,7 +50,8 @@ async function fetchUserInvitations(url) {
     const {results, next} = response.data
     for (const invitation of results) {
       invitation.company = await fetchCompanyById(invitation.company)
-      invitationList.value = [...invitationList.value, invitation];
+      invitation.status = statusMapping[invitation.status]
+      invitationList.value = [...invitationList.value, invitation]
     }
 
     if (next) {
@@ -138,44 +158,13 @@ onMounted(async () => {
     </div>
   </Modal>
   <h4>{{ $t('company_profile.pending_invitations') }}:</h4>
-  <table class="table table-striped table-hover mb-5">
-    <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Company</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr v-for="(invitation) in pendingInvitations"
-        :key="invitation.id"
-        @click="goToCompanyPage(invitation.company.id)">
-      <th scope="row">{{ invitation.id }}</th>
-      <td>{{ invitation.company.name }}</td>
-    </tr>
-    </tbody>
-  </table>
+  <UniversalTable :columns="pendingInvitationsColumns"
+                  :data="pendingInvitations"
+                  :rowClick="goToCompanyPage"/>
   <h4>{{ $t('company_profile.resolved_invitations') }}:</h4>
-  <table class="table table-striped table-hover">
-    <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Company</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr v-for="(invitation) in resolvedInvitations"
-        :key="invitation.id"
-        @click="goToCompanyPage(invitation.company.id)">
-      <th scope="row">{{ invitation.id }}</th>
-      <td>{{ invitation.company.name }}</td>
-      <td>{{
-          invitation.status === 1 ? t('company_profile.accepted') :
-              (invitation.status === 2 ? t('company_profile.declined') : t('company_profile.revoked'))
-        }}
-      </td>
-    </tr>
-    </tbody>
-  </table>
+  <UniversalTable :columns="revolvedInvitationsColumns"
+                  :data="resolvedInvitations"
+                  :rowClick="goToCompanyPage"/>
 </template>
 
 <style scoped lang="scss">

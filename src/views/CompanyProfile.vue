@@ -12,11 +12,17 @@ import {fetchUserById} from "@/services/users.service";
 import AccordionItem from "@/components/AccordionItem.vue";
 import CompanyInvitations from "@/components/CompanyInvitations.vue";
 import CompanyRequests from "@/components/CompanyRequests.vue";
+import UniversalTable from "@/components/UniversalTable.vue";
 
 const {t} = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = useStore();
+
+const userListColumns = [
+  {label: "#", field: "id"},
+  {label: "Email", field: "email"},
+]
 
 const companyInfo = ref({})
 const membersList = ref([])
@@ -205,22 +211,9 @@ onMounted(async () => {
                 </div>
               </Modal>
             </div>
-            <table class="table table-striped table-hover">
-              <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Email</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr v-for="(user) in membersList"
-                  :key="user.id"
-                  @click="goToUserPage(user.id)">
-                <th scope="row">{{ user.id }}</th>
-                <td>{{ user.email }}</td>
-              </tr>
-              </tbody>
-            </table>
+            <UniversalTable :columns="userListColumns"
+                            :data="membersList"
+                            :rowClick="goToUserPage"/>
           </AccordionItem>
           <AccordionItem
               v-if="isOwner"

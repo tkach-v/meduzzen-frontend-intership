@@ -7,6 +7,7 @@ import {ErrorMessage, Field, Form} from "vee-validate";
 import Modal from "@/components/Modal.vue";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
+import UniversalTable from "@/components/UniversalTable.vue";
 
 const props = defineProps({
   companyId: Number
@@ -15,6 +16,24 @@ const props = defineProps({
 const {t} = useI18n()
 const router = useRouter()
 
+const statusMapping = {
+  1: 'Approved',
+  2: 'Rejected',
+  3: 'Cancelled',
+  4: 'Pending',
+}
+
+const pendingRequestsColumns = [
+  {label: "#", field: "id"},
+  {label: "Email", field: "sender.email"},
+]
+
+const revolvedRequestsColumns = [
+  {label: "#", field: "id"},
+  {label: "Email", field: "sender.email"},
+  {label: "Status", field: "status"},
+]
+
 const requestsList = ref([])
 let approveRequestModal = ref(null);
 const approveRequestMessage = ref('')
@@ -22,10 +41,10 @@ let rejectRequestModal = ref(null);
 const rejectRequestMessage = ref('')
 
 const pendingRequests = computed(() => {
-  return requestsList.value.filter(request => request.status === 4);
+  return requestsList.value.filter(request => request.status === 'Pending');
 });
 const resolvedRequests = computed(() => {
-  return requestsList.value.filter(request => request.status !== 4);
+  return requestsList.value.filter(request => request.status !== 'Pending');
 });
 
 async function fetchCompanyRequests(url) {
@@ -35,6 +54,7 @@ async function fetchCompanyRequests(url) {
     const {results, next} = response.data
     for (const request of results) {
       request.sender = await fetchUserById(request.sender)
+      request.status = statusMapping[request.status];
       requestsList.value = [...requestsList.value, request];
     }
 
@@ -143,45 +163,13 @@ onMounted(async () => {
     </div>
   </Modal>
   <h4>{{ $t('company_profile.pending_requests') }}:</h4>
-  <table class="table table-striped table-hover mb-5">
-    <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Email</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr v-for="(request) in pendingRequests"
-        :key="request.id"
-        @click="goToUserPage(request.sender.id)">
-      <th scope="row">{{ request.id }}</th>
-      <td>{{ request.sender.email }}</td>
-    </tr>
-    </tbody>
-  </table>
+  <UniversalTable :columns="pendingRequestsColumns"
+                  :data="pendingRequests"
+                  :rowClick="goToUserPage"/>
   <h4>{{ $t('company_profile.resolved_requests') }}:</h4>
-  <table class="table table-striped table-hover">
-    <thead>
-    <tr>
-      <th scope="col">#</th>
-      <th scope="col">Email</th>
-      <th scope="col">Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr v-for="(request) in resolvedRequests"
-        :key="request.id"
-        @click="goToUserPage(request.sender.id)">
-      <th scope="row">{{ request.id }}</th>
-      <td>{{ request.sender.email }}</td>
-      <td>{{
-          request.status === 1 ? t('company_profile.approved') :
-              (request.status === 2 ? t('company_profile.rejected') : t('company_profile.cancelled'))
-        }}
-      </td>
-    </tr>
-    </tbody>
-  </table>
+  <UniversalTable :columns="revolvedRequestsColumns"
+                  :data="resolvedRequests"
+                  :rowClick="goToUserPage"/>
 </template>
 
 <style scoped lang="scss">

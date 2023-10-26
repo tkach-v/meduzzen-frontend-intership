@@ -3,8 +3,14 @@ import {useRouter} from "vue-router";
 import {onMounted, reactive, computed} from "vue";
 import Pagination from "@/components/Pagination.vue";
 import apiClient from "@/http/axios/apiClient";
+import UniversalTable from "@/components/UniversalTable.vue";
 
 const router = useRouter();
+
+const companyListColumns = [
+  {label: "#", field: "id"},
+  {label: "Name", field: "name"},
+]
 
 const companiesList = reactive([])
 const state = reactive({
@@ -53,20 +59,9 @@ onMounted(() => {
 <template>
   <div class="container fs-5">
     <h1 class="fw-bold mt-5 mb-4">{{ $t('companies.header') }}</h1>
-    <table class="table table-striped table-hover">
-      <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Name</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="(company) in state.paginatedData" :key="company.id" @click="goToCompanyPage(company.id)">
-        <th scope="row">{{ company.id }}</th>
-        <td>{{ company.name }}</td>
-      </tr>
-      </tbody>
-    </table>
+    <UniversalTable :columns="companyListColumns"
+                    :data="state.paginatedData"
+                    :rowClick="goToCompanyPage"/>
   </div>
   <Pagination
       :currentPage="state.currentPage"
