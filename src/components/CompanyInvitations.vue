@@ -16,13 +16,6 @@ const props = defineProps({
 const {t} = useI18n()
 const router = useRouter()
 
-const statusMapping = {
-  1: 'Accepted',
-  2: 'Declined',
-  3: 'Revoked',
-  4: 'Pending',
-}
-
 const pendingInvitationsColumns = [
   {label: "#", field: "id"},
   {label: "Email", field: "recipient.email"},
@@ -54,7 +47,6 @@ async function fetchCompanyInvitations(url) {
     const {results, next} = response.data
     for (const invitation of results) {
       invitation.recipient = await fetchUserById(invitation.recipient)
-      invitation.status = statusMapping[invitation.status]
       invitationList.value = [...invitationList.value, invitation]
     }
 

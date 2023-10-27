@@ -16,13 +16,6 @@ const props = defineProps({
 const {t} = useI18n()
 const router = useRouter()
 
-const statusMapping = {
-  1: 'Approved',
-  2: 'Rejected',
-  3: 'Cancelled',
-  4: 'Pending',
-}
-
 const pendingRequestsColumns = [
   {label: "#", field: "id"},
   {label: "Email", field: "sender.email"},
@@ -54,7 +47,6 @@ async function fetchCompanyRequests(url) {
     const {results, next} = response.data
     for (const request of results) {
       request.sender = await fetchUserById(request.sender)
-      request.status = statusMapping[request.status];
       requestsList.value = [...requestsList.value, request];
     }
 

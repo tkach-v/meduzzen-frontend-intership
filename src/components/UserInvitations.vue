@@ -12,13 +12,6 @@ import UniversalTable from "@/components/UniversalTable.vue";
 const {t} = useI18n()
 const router = useRouter()
 
-const statusMapping = {
-  1: 'Accepted',
-  2: 'Declined',
-  3: 'Revoked',
-  4: 'Pending',
-}
-
 const pendingInvitationsColumns = [
   {label: "#", field: "id"},
   {label: "Company", field: "company.name"},
@@ -50,7 +43,6 @@ async function fetchUserInvitations(url) {
     const {results, next} = response.data
     for (const invitation of results) {
       invitation.company = await fetchCompanyById(invitation.company)
-      invitation.status = statusMapping[invitation.status]
       invitationList.value = [...invitationList.value, invitation]
     }
 

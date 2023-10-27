@@ -18,13 +18,6 @@ const createRequestMessage = ref('')
 let cancelRequestModal = ref(null);
 const cancelRequestMessage = ref('')
 
-const statusMapping = {
-  1: 'Approved',
-  2: 'Rejected',
-  3: 'Cancelled',
-  4: 'Pending',
-}
-
 const pendingRequestsColumns = [
   {label: "#", field: "id"},
   {label: "Email", field: "company.name"},
@@ -50,7 +43,6 @@ async function fetchUserRequests(url) {
     const {results, next} = response.data
     for (const request of results) {
       request.company = await fetchCompanyById(request.company)
-      request.status = statusMapping[request.status];
       requestsList.value = [...requestsList.value, request];
     }
 
