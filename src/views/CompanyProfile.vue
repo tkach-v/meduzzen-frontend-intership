@@ -8,17 +8,33 @@ import * as yup from "yup";
 import {useI18n} from "vue-i18n";
 import apiClient from "@/http/axios/apiClient";
 import Modal from "@/components/Modal.vue";
+import {fetchUserById} from "@/services/users.service";
+import AccordionItem from "@/components/AccordionItem.vue";
+import CompanyInvitations from "@/components/CompanyInvitations.vue";
+import CompanyRequests from "@/components/CompanyRequests.vue";
+import UniversalTable from "@/components/UniversalTable.vue";
 
 const {t} = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = useStore();
 
+const userListColumns = [
+  {label: "#", field: "id"},
+  {label: "Email", field: "email"},
+]
+
+const companyInfo = ref({})
+const membersList = ref([])
+let deleteCompanyModal = ref(null);
+const deleteCompanyMessage = ref('')
+const changeInfoMessage = ref('');
+let removeUserModal = ref(null);
+const removeUserMessage = ref('')
+
 const currentUser = computed(() => store.state.auth.user)
 const isOwner = computed(() => currentUser.value.id === companyInfo.value.owner)
 const isMember = computed(() => companyInfo.value.members && companyInfo.value.members.includes(currentUser.value.id))
-const companyInfo = ref({})
-const membersList = ref([])
 
 async function fetchCompanyById(companyId) {
   try {
@@ -33,8 +49,7 @@ async function fetchCompanyMembers() {
   try {
     const members = [];
     for (const member of companyInfo.value.members) {
-      const {data} = await apiClient.get(`/api/users/${member}`);
-      members.push(data);
+      members.push(await fetchUserById(member))
     }
     membersList.value = members;
   } catch (error) {
@@ -42,18 +57,28 @@ async function fetchCompanyMembers() {
   }
 }
 
-
-onMounted(async () => {
-  await fetchCompanyById(route.params.id)
-  await fetchCompanyMembers()
-});
-
 const formatDate = (dateString) => {
   const createdAt = new Date(dateString)
   return createdAt.toLocaleDateString()
 };
 
-// updating company info form schema and onSubmit method
+const goToUserPage = (userId) => {
+  router.push({name: 'userProfile', params: {id: userId}});
+};
+
+function showDeleteCompanyModal() {
+  deleteCompanyModal.value.show();
+}
+
+const handleDeleteCompany = async () => {
+  try {
+    await apiClient.delete(`/api/companies/${companyInfo.value.id}/`)
+    await router.push({name: 'companiesList', params: {locale: i18n.global.locale.value}});
+  } catch (err) {
+    deleteCompanyMessage.value = t('user_profile.update_error')
+  }
+}
+
 const companyInfoSchema = yup.object().shape({
   name: yup
       .string()
@@ -63,7 +88,6 @@ const companyInfoSchema = yup.object().shape({
       .required(t('company_profile.description_required'))
 });
 
-const changeInfoMessage = ref('');
 const handleChangeInfo = async (companyData, actions) => {
   try {
     await apiClient.patch(`/api/companies/${companyInfo.value.id}/`, companyData)
@@ -74,27 +98,29 @@ const handleChangeInfo = async (companyData, actions) => {
   }
 };
 
-let deleteCompanyModal = ref(null);
-
-function showDeleteCompanyModal() {
-  deleteCompanyModal.value.show();
+function showRemoveUserModal() {
+  removeUserModal.value.show();
 }
 
-const deleteCompanyMessage = ref('')
-const handleDeleteCompany = async () => {
+const removeUserSchema = yup.object().shape({
+  user_id: yup
+      .number()
+      .required(t('company_profile.user_id_required'))
+});
+const handleRemoveUser = async (userData, actions) => {
   try {
-    await apiClient.delete(`/api/companies/${companyInfo.value.id}/`)
-    await router.push({name: 'companiesList', params: {locale: i18n.global.locale.value}});
+    await apiClient.post(`/api/companies/${companyInfo.value.id}/remove-user/`, userData)
+    actions.resetForm()
+    removeUserMessage.value = ""
   } catch (err) {
-    deleteCompanyMessage.value = t('user_profile.update_error')
+    removeUserMessage.value = "Error: " + err.response.data.detail
   }
 }
 
-const goToUserPage = (userId) => {
-  router.push({name: 'userProfile', params: {id: userId}});
-};
-
-
+onMounted(async () => {
+  await fetchCompanyById(route.params.id)
+  await fetchCompanyMembers()
+});
 </script>
 
 <template>
@@ -115,83 +141,96 @@ const goToUserPage = (userId) => {
           <p class="mb-2"><b>{{ $t('company_profile.created_at') }}: </b>{{ formatDate(companyInfo.created_at) }}</p>
         </div>
         <div class="accordion mt-4" id="profileAccordion">
-          <div class="accordion-item"
-               v-if="isOwner">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed"
+          <AccordionItem
+              v-if="isOwner"
+              :itemTitle="t('company_profile.change_info')"
+              itemSuffix="ChangeInfo"
+              parentSelector="#profileAccordion"
+          >
+            <Form @submit="handleChangeInfo" :validation-schema="companyInfoSchema">
+              <div class="form-floating mb-3">
+                <Field
+                    name="name"
+                    type="text"
+                    class="form-control"
+                    placeholder="Name"/>
+                <label for="name">{{ $t('company_profile.name') }}</label>
+                <ErrorMessage name="name" class="d-flex mt-2 invalid-feedback"/>
+              </div>
+              <div class="form-floating mb-3">
+                <Field
+                    name="description"
+                    as="textarea"
+                    type="text"
+                    class="form-control"
+                    placeholder="Description"
+                    style="height: 125px"/>
+                <label for="description">{{ $t('company_profile.description') }}</label>
+                <ErrorMessage name="description" class="d-flex mt-2 invalid-feedback"/>
+              </div>
+              <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('common.save') }}</button>
+            </Form>
+            <div v-if="changeInfoMessage"
+                 class="alert mt-3 alert-danger"
+            >
+              {{ changeInfoMessage }}
+            </div>
+          </AccordionItem>
+          <AccordionItem
+              :itemTitle="t('company_profile.members')"
+              itemSuffix="Members"
+              parentSelector="#profileAccordion"
+          >
+            <div v-if="isOwner">
+              <button class="mb-4 btn btn-danger"
                       type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseChangeInfo"
-                      aria-expanded="false"
-                      aria-controls="collapseChangeInfo"
-              >{{ $t('company_profile.change_info') }}
+                      @click="showRemoveUserModal"
+              >{{ $t('company_profile.remove_member') }}
               </button>
-            </h2>
-            <div id="collapseChangeInfo" class="accordion-collapse collapse" data-bs-parent="#profileAccordion">
-              <div class="accordion-body">
-                <Form @submit="handleChangeInfo" :validation-schema="companyInfoSchema">
+              <Modal ref="removeUserModal"
+                     :title="t('company_profile.remove_member')">
+                <Form @submit="handleRemoveUser"
+                      :validation-schema="removeUserSchema">
                   <div class="form-floating mb-3">
-                    <Field
-                        name="name"
-                        type="text"
-                        class="form-control"
-                        placeholder="Name"/>
-                    <label for="name">{{ $t('company_profile.name') }}</label>
-                    <ErrorMessage name="name" class="d-flex mt-2 invalid-feedback"/>
+                    <Field name="user_id"
+                           type="number"
+                           class="form-control"
+                           placeholder="Recipient"/>
+                    <label for="user_id">{{ $t('company_profile.user_id') }}</label>
+                    <ErrorMessage name="user_id" class="d-flex mt-2 invalid-feedback"/>
                   </div>
-                  <div class="form-floating mb-3">
-                    <Field
-                        name="description"
-                        as="textarea"
-                        type="text"
-                        class="form-control"
-                        placeholder="Description"
-                        style="height: 125px"/>
-                    <label for="description">{{ $t('company_profile.description') }}</label>
-                    <ErrorMessage name="description" class="d-flex mt-2 invalid-feedback"/>
-                  </div>
-                  <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('common.save') }}</button>
+                  <button class="d-flex btn btn-danger px-3 ms-auto">{{
+                      $t('company_profile.remove_member')
+                    }}
+                  </button>
                 </Form>
-                <div v-if="changeInfoMessage"
+                <div v-if="removeUserMessage"
                      class="alert mt-3 alert-danger"
                 >
-                  {{ changeInfoMessage }}
+                  {{ removeUserMessage }}
                 </div>
-              </div>
+              </Modal>
             </div>
-          </div>
-          <div class="accordion-item">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseMembers"
-                      aria-expanded="false"
-                      aria-controls="collapseMembers"
-              >{{ $t('company_profile.members') }}
-              </button>
-            </h2>
-            <div id="collapseMembers" class="accordion-collapse collapse" data-bs-parent="#profileAccordion">
-              <div class="accordion-body">
-                <table class="table table-striped table-hover">
-                  <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Email</th>
-                  </tr>
-                  </thead>
-                  <tbody>
-                  <tr v-for="(user) in membersList"
-                      :key="user.id"
-                      @click="goToUserPage(user.id)">
-                    <th scope="row">{{ user.id }}</th>
-                    <td>{{ user.email }}</td>
-                  </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
+            <UniversalTable :columns="userListColumns"
+                            :data="membersList"
+                            :rowClick="goToUserPage"/>
+          </AccordionItem>
+          <AccordionItem
+              v-if="isOwner"
+              :itemTitle="t('company_profile.invitations')"
+              itemSuffix="Invitations"
+              parentSelector="#profileAccordion"
+          >
+            <CompanyInvitations :companyId="companyInfo.id"/>
+          </AccordionItem>
+          <AccordionItem
+              v-if="isOwner"
+              :itemTitle="t('company_profile.requests')"
+              itemSuffix="UserRequests"
+              parentSelector="#profileAccordion"
+          >
+            <CompanyRequests :companyId="companyInfo.id"/>
+          </AccordionItem>
         </div>
         <div v-if="isOwner">
           <button class="mt-4 btn btn-danger"

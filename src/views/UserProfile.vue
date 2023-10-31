@@ -8,35 +8,31 @@ import * as yup from "yup";
 import {useI18n} from "vue-i18n";
 import apiClient from "@/http/axios/apiClient";
 import Modal from "@/components/Modal.vue";
+import AccordionItem from "@/components/AccordionItem.vue";
+import UserInvitations from "@/components/UserInvitations.vue";
+import UserRequests from "@/components/UserRequests.vue";
+import UserCompanies from "@/components/UserCompanies.vue";
 
 const {t} = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = useStore();
 
+const changeInfoMessage = ref('');
+const changePasswordMessage = ref('');
+const changeAvatarMessage = ref('');
+let deleteUserModal = ref(null);
+const deleteUserMessage = ref('')
+let createCompanyModal = ref(null);
+const createCompanyMessage = ref('')
+
+const validFileExtensions = {image: ['jpg', 'gif', 'png', 'jpeg', 'svg', 'webp']};
+
 const currentUser = computed(() => store.state.auth.user)
 const userId = computed(() => route.params.id)
 const isOwner = computed(() => currentUser.value.id == userId.value);
 const userInfo = computed(() => store.state.users.user);
 
-const formatDate = (dateString) => {
-  const createdAt = new Date(dateString)
-  return createdAt.toLocaleDateString()
-};
-
-onMounted(() => {
-  if (userId.value && isOwner.value) {
-    router.push({name: 'profile', params: {locale: i18n.global.locale.value}})
-  }
-
-  if (userId.value) {
-    store.dispatch('users/fetchUserById', userId.value)
-  } else {
-    store.dispatch('users/fetchUserById', currentUser.value.id)
-  }
-});
-
-// updating user info form schema and onSubmit method
 const userInfoSchema = yup.object().shape({
   firstName: yup
       .string()
@@ -47,8 +43,6 @@ const userInfoSchema = yup.object().shape({
       .required(t('user_profile.last_name_required'))
       .max(50, t('user_profile.name_large')),
 });
-
-const changeInfoMessage = ref('');
 const handleChangeInfo = async (userData, actions) => {
   try {
     const data = {
@@ -63,7 +57,6 @@ const handleChangeInfo = async (userData, actions) => {
   }
 };
 
-// changing user password form schema and onSubmit method
 const changePasswordSchema = yup.object().shape({
   password: yup
       .string()
@@ -75,8 +68,6 @@ const changePasswordSchema = yup.object().shape({
       .required(t('auth.password_confirm_required'))
       .oneOf([yup.ref('password')], t('auth.password_confirm_not_match'))
 });
-
-const changePasswordMessage = ref('');
 const handleChangePassword = async (userData) => {
   try {
     const data = {
@@ -91,13 +82,10 @@ const handleChangePassword = async (userData) => {
   }
 };
 
-// changing user avatar form schema and onSubmit method
-const validFileExtensions = {image: ['jpg', 'gif', 'png', 'jpeg', 'svg', 'webp']};
 
 function isValidFileType(fileName, fileType) {
   return fileName && validFileExtensions[fileType].indexOf(fileName.split('.').pop()) > -1;
 }
-
 const changeAvatarSchema = yup.object().shape({
   image: yup
       .mixed()
@@ -107,8 +95,6 @@ const changeAvatarSchema = yup.object().shape({
       .test("is-valid-size", t('user_profile.avatar_invalid_size'),
           value => value && value.size <= 1048576)
 });
-
-const changeAvatarMessage = ref('');
 const handleChangeAvatar = async (userData) => {
   try {
     const data = {
@@ -128,12 +114,10 @@ const handleChangeAvatar = async (userData) => {
   }
 };
 
-let deleteUserModal = ref(null);
 function showDeleteUserModal() {
   deleteUserModal.value.show();
 }
 
-const deleteUserMessage = ref('')
 const handleDeleteUser = async () => {
   try {
     await apiClient.delete(`/api/users/delete/${userInfo.value.id}/`)
@@ -145,7 +129,6 @@ const handleDeleteUser = async () => {
   }
 }
 
-let createCompanyModal = ref(null);
 function showCreateCompanyModal() {
   createCompanyModal.value.show();
 }
@@ -159,7 +142,6 @@ const createCompanySchema = yup.object().shape({
       .required(t('company_profile.description_required'))
 });
 
-const createCompanyMessage = ref('')
 const handleCompanyCreation = async (companyData, actions) => {
   try {
     await apiClient.post(`/api/companies/`, companyData)
@@ -169,6 +151,22 @@ const handleCompanyCreation = async (companyData, actions) => {
   }
 }
 
+const formatDate = (dateString) => {
+  const createdAt = new Date(dateString)
+  return createdAt.toLocaleDateString()
+};
+
+onMounted(async () => {
+  if (userId.value && isOwner.value) {
+    await router.push({name: 'profile', params: {locale: i18n.global.locale.value}})
+  }
+
+  if (userId.value) {
+    await store.dispatch('users/fetchUserById', userId.value)
+  } else {
+    await store.dispatch('users/fetchUserById', currentUser.value.id)
+  }
+});
 </script>
 
 <template>
@@ -209,99 +207,103 @@ const handleCompanyCreation = async (companyData, actions) => {
           </div>
         </div>
         <div class="accordion mt-5" id="profileAccordion">
-          <div class="accordion-item"
-               v-if="currentUser.id === userInfo.id">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseChangeInfo"
-                      aria-expanded="false"
-                      aria-controls="collapseChangeInfo"
-              >{{ $t('user_profile.change_user_info') }}
-              </button>
-            </h2>
-            <div id="collapseChangeInfo" class="accordion-collapse collapse" data-bs-parent="#profileAccordion">
-              <div class="accordion-body">
-                <Form @submit="handleChangeInfo" :validation-schema="userInfoSchema">
-                  <div class="form-floating mb-3">
-                    <input name="email"
-                           type="email"
-                           class="form-control"
-                           placeholder="user@example.com"
-                           :value="userInfo.email"
-                           readonly/>
-                    <label for="email">{{ $t('common.email') }}</label>
-                  </div>
-                  <div class="form-floating mb-3">
-                    <Field
-                        name="firstName"
-                        type="text"
-                        class="form-control"
-                        placeholder="First Name"/>
-                    <label for="firstName">{{ $t('user_profile.first_name') }}</label>
-                    <ErrorMessage name="firstName" class="d-flex mt-2 invalid-feedback"/>
-                  </div>
-                  <div class="form-floating mb-3">
-                    <Field name="lastName"
-                           type="text"
-                           class="form-control"
-                           placeholder="Last Name"/>
-                    <label for="lastName">{{ $t('user_profile.last_name') }}</label>
-                    <ErrorMessage name="lastName" class="d-flex mt-2 invalid-feedback"/>
-                  </div>
-                  <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('user_profile.save') }}</button>
-                </Form>
-                <div v-if="changeInfoMessage"
-                     class="alert mt-3 alert-danger"
-                >
-                  {{ changeInfoMessage }}
-                </div>
+          <AccordionItem
+              v-if="currentUser.id === userInfo.id"
+              :itemTitle="t('user_profile.change_user_info')"
+              itemSuffix="ChangeInfo"
+              parentSelector="#profileAccordion"
+          >
+            <Form @submit="handleChangeInfo" :validation-schema="userInfoSchema">
+              <div class="form-floating mb-3">
+                <input name="email"
+                       type="email"
+                       class="form-control"
+                       placeholder="user@example.com"
+                       :value="userInfo.email"
+                       readonly/>
+                <label for="email">{{ $t('common.email') }}</label>
               </div>
-            </div>
-          </div>
-          <div class="accordion-item"
-               v-if="currentUser.id === userInfo.id">
-            <h2 class="accordion-header">
-              <button class="accordion-button collapsed"
-                      type="button"
-                      data-bs-toggle="collapse"
-                      data-bs-target="#collapseChangePass"
-                      aria-expanded="false"
-                      aria-controls="collapseChangePass"
-              >{{ $t('user_profile.change_user_password') }}
-              </button>
-            </h2>
-            <div id="collapseChangePass" class="accordion-collapse collapse" data-bs-parent="#profileAccordion">
-              <div class="accordion-body">
-                <Form @submit="handleChangePassword" :validation-schema="changePasswordSchema">
-                  <div class="form-floating mb-3">
-                    <Field
-                        name="password"
-                        type="password"
-                        class="form-control"
-                        placeholder="password"/>
-                    <label for="password">{{ $t('user_profile.new_password') }}</label>
-                    <ErrorMessage name="password" class="d-flex mt-2 invalid-feedback"/>
-                  </div>
-                  <div class="form-floating mb-3">
-                    <Field name="passwordConfirmation"
-                           type="password"
-                           class="form-control"
-                           placeholder="password"/>
-                    <label for="passwordConfirmation">{{ $t('user_profile.new_password_confirm') }}</label>
-                    <ErrorMessage name="passwordConfirmation" class="d-flex mt-2 invalid-feedback"/>
-                  </div>
-                  <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('user_profile.save') }}</button>
-                </Form>
-                <div v-if="changePasswordMessage"
-                     class="alert mt-3 alert-danger"
-                >
-                  {{ changePasswordMessage }}
-                </div>
+              <div class="form-floating mb-3">
+                <Field
+                    name="firstName"
+                    type="text"
+                    class="form-control"
+                    placeholder="First Name"/>
+                <label for="firstName">{{ $t('user_profile.first_name') }}</label>
+                <ErrorMessage name="firstName" class="d-flex mt-2 invalid-feedback"/>
               </div>
+              <div class="form-floating mb-3">
+                <Field name="lastName"
+                       type="text"
+                       class="form-control"
+                       placeholder="Last Name"/>
+                <label for="lastName">{{ $t('user_profile.last_name') }}</label>
+                <ErrorMessage name="lastName" class="d-flex mt-2 invalid-feedback"/>
+              </div>
+              <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('user_profile.save') }}</button>
+            </Form>
+            <div v-if="changeInfoMessage"
+                 class="alert mt-3 alert-danger"
+            >
+              {{ changeInfoMessage }}
             </div>
-          </div>
+          </AccordionItem>
+          <AccordionItem
+              v-if="currentUser.id === userInfo.id"
+              :itemTitle="t('user_profile.change_user_password')"
+              itemSuffix="ChangePass"
+              parentSelector="#profileAccordion"
+          >
+            <Form @submit="handleChangePassword" :validation-schema="changePasswordSchema">
+              <div class="form-floating mb-3">
+                <Field
+                    name="password"
+                    type="password"
+                    class="form-control"
+                    placeholder="password"/>
+                <label for="password">{{ $t('user_profile.new_password') }}</label>
+                <ErrorMessage name="password" class="d-flex mt-2 invalid-feedback"/>
+              </div>
+              <div class="form-floating mb-3">
+                <Field name="passwordConfirmation"
+                       type="password"
+                       class="form-control"
+                       placeholder="password"/>
+                <label for="passwordConfirmation">{{ $t('user_profile.new_password_confirm') }}</label>
+                <ErrorMessage name="passwordConfirmation" class="d-flex mt-2 invalid-feedback"/>
+              </div>
+              <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('user_profile.save') }}</button>
+            </Form>
+            <div v-if="changePasswordMessage"
+                 class="alert mt-3 alert-danger"
+            >
+              {{ changePasswordMessage }}
+            </div>
+          </AccordionItem>
+          <AccordionItem
+              v-if="currentUser.id === userInfo.id"
+              :itemTitle="t('user_profile.companies')"
+              itemSuffix="UserCompanies"
+              parentSelector="#profileAccordion"
+          >
+            <UserCompanies/>
+          </AccordionItem>
+          <AccordionItem
+              v-if="currentUser.id === userInfo.id"
+              :itemTitle="t('company_profile.invitations')"
+              itemSuffix="UserInvitations"
+              parentSelector="#profileAccordion"
+          >
+            <UserInvitations/>
+          </AccordionItem>
+          <AccordionItem
+              v-if="currentUser.id === userInfo.id"
+              :itemTitle="t('company_profile.requests')"
+              itemSuffix="UserRequests"
+              parentSelector="#profileAccordion"
+          >
+            <UserRequests/>
+          </AccordionItem>
         </div>
         <div v-if="currentUser.id === userInfo.id">
           <button class="mt-4 btn btn-primary me-2"
@@ -366,8 +368,6 @@ const handleCompanyCreation = async (companyData, actions) => {
             </div>
           </Modal>
         </div>
-
-
       </div>
     </div>
   </div>

@@ -3,9 +3,15 @@ import {useRouter} from "vue-router";
 import {onMounted, reactive, computed} from "vue";
 import Pagination from "@/components/Pagination.vue";
 import {useStore} from "vuex";
+import UniversalTable from "@/components/UniversalTable.vue";
 
 const router = useRouter();
 const store = useStore()
+
+const userListColumns = [
+  {label: "#", field: "id"},
+  {label: "Email", field: "email"},
+]
 
 const state = reactive({
   usersList: computed(() => store.state.users.usersList),
@@ -37,20 +43,9 @@ onMounted(() => {
 <template>
   <div class="container fs-5">
     <h1 class="fw-bold mt-5 mb-4">{{ $t('users.header') }}</h1>
-    <table class="table table-striped table-hover">
-      <thead>
-      <tr>
-        <th scope="col">#</th>
-        <th scope="col">Email</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr v-for="(user) in state.paginatedData" :key="user.id" @click="goToUserPage(user.id)">
-        <th scope="row">{{ user.id }}</th>
-        <td>{{ user.email }}</td>
-      </tr>
-      </tbody>
-    </table>
+    <UniversalTable :columns="userListColumns"
+                    :data="state.paginatedData"
+                    :rowClick="goToUserPage"/>
   </div>
   <Pagination
       :currentPage="state.currentPage"
