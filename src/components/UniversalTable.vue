@@ -1,23 +1,8 @@
 <script setup>
-import {computed} from "vue";
-
-const props = defineProps({
+defineProps({
   data: Array,
   columns: Array,
   rowClick: Function
-});
-
-const computedColumns = computed(() => {
-  return props.columns.map(column => {
-    console.log({
-      ...column,
-      field: getNestedValue(props.data[0], column.field),
-    })
-    return {
-      ...column,
-      field: getNestedValue(props.data[0], column.field),
-    };
-  });
 });
 
 const getRowClickArg = (item) => {
@@ -49,7 +34,7 @@ const getNestedValue = (item, field) => {
     </tr>
     </thead>
     <tbody>
-    <tr v-for="(item, rowIndex) in data" :key="item.id" @click="rowClick(getRowClickArg(item))">
+    <tr v-for="(item) in data" :key="item.id" @click="rowClick(getRowClickArg(item))">
       <td v-for="(column, colIndex) in columns" :key="colIndex">
         {{ getNestedValue(item, column.field) }}
       </td>

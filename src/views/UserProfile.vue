@@ -84,7 +84,8 @@ const handleChangePassword = async (userData) => {
 
 
 function isValidFileType(fileName, fileType) {
-  return fileName && validFileExtensions[fileType].indexOf(fileName.split('.').pop()) > -1;
+  const isValidFileExtention = validFileExtensions[fileType].indexOf(fileName.split('.').pop()) > -1
+  return fileName && isValidFileExtention;
 }
 const changeAvatarSchema = yup.object().shape({
   image: yup

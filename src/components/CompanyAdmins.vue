@@ -2,12 +2,12 @@
 import {defineProps, onMounted, ref} from 'vue';
 import apiClient from "@/http/axios/apiClient";
 import {fetchUserById} from "@/services/users.service";
-import * as yup from "yup";
 import {ErrorMessage, Field, Form} from "vee-validate";
 import Modal from "@/components/Modal.vue";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
 import UniversalTable from "@/components/UniversalTable.vue";
+import {userIdSchema} from "@/configs/yupSchemas";
 
 const props = defineProps({
   companyId: Number,
@@ -44,11 +44,8 @@ function showAppointAdminModal() {
   appointAdminModal.value.show();
 }
 
-const appointAdminSchema = yup.object().shape({
-  user_id: yup
-      .number()
-      .required(t('company_profile.user_id_required'))
-});
+
+const appointAdminSchema = userIdSchema(t('company_profile.user_id_required'))
 const handleAppointAdmin = async (recipientData, actions) => {
   try {
     await apiClient.post(`/api/companies/${props.companyId}/add-admin/`, recipientData)
@@ -63,11 +60,7 @@ function showRemoveAdminModal() {
   removeAdminModal.value.show();
 }
 
-const removeAdminSchema = yup.object().shape({
-  user_id: yup
-      .number()
-      .required(t('company_profile.admin_id_required'))
-});
+const removeAdminSchema = userIdSchema(t('company_profile.admin_id_required'))
 const handleRemoveAdmin = async (adminData, actions) => {
   try {
     await apiClient.post(`/api/companies/${props.companyId}/remove-admin/`, adminData)

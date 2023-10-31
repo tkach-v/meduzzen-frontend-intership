@@ -14,6 +14,7 @@ import CompanyInvitations from "@/components/CompanyInvitations.vue";
 import CompanyRequests from "@/components/CompanyRequests.vue";
 import UniversalTable from "@/components/UniversalTable.vue";
 import CompanyAdmins from "@/components/CompanyAdmins.vue";
+import {userIdSchema} from "@/configs/yupSchemas";
 
 const {t} = useI18n()
 const route = useRoute()
@@ -50,7 +51,8 @@ async function fetchCompanyMembers() {
   try {
     const members = [];
     for (const member of companyInfo.value.members) {
-      members.push(await fetchUserById(member))
+      const data = await fetchUserById(member)
+      members.push(data)
     }
     membersList.value = members;
   } catch (error) {
@@ -103,11 +105,7 @@ function showRemoveUserModal() {
   removeUserModal.value.show();
 }
 
-const removeUserSchema = yup.object().shape({
-  user_id: yup
-      .number()
-      .required(t('company_profile.user_id_required'))
-});
+const removeUserSchema = userIdSchema(t('company_profile.user_id_required'))
 const handleRemoveUser = async (userData, actions) => {
   try {
     await apiClient.post(`/api/companies/${companyInfo.value.id}/remove-user/`, userData)
