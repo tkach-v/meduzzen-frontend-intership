@@ -6,6 +6,7 @@ defineProps({
   title: {
     default: "Modal title",
   },
+  wide: Boolean
 });
 let modalElement = ref(null);
 let thisModalObj = null;
@@ -18,12 +19,17 @@ function _show() {
   thisModalObj.show();
 }
 
-defineExpose({show: _show});
+function _hide() {
+  thisModalObj.hide();
+}
+
+defineExpose({show: _show, hide: _hide});
 </script>
 
 <template>
   <div class="modal fade" ref="modalElement">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+        :class="wide ? 'wide-modal-dialog' : ''">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title">{{ title }}</h5>
@@ -36,3 +42,11 @@ defineExpose({show: _show});
     </div>
   </div>
 </template>
+
+<style scoped lang="scss">
+.wide-modal-dialog {
+  max-width: 900px;
+  width: 100%;
+  padding: 0 20px
+}
+</style>

@@ -15,6 +15,7 @@ import CompanyRequests from "@/components/CompanyRequests.vue";
 import UniversalTable from "@/components/UniversalTable.vue";
 import CompanyAdmins from "@/components/CompanyAdmins.vue";
 import {userIdSchema} from "@/configs/yupSchemas";
+import CompanyQuizzes from "@/components/CompanyQuizzes.vue";
 
 const {t} = useI18n()
 const route = useRoute()
@@ -35,8 +36,9 @@ let removeUserModal = ref(null);
 const removeUserMessage = ref('')
 
 const currentUser = computed(() => store.state.auth.user)
-const isOwner = computed(() => currentUser.value.id === companyInfo.value.owner)
 const isMember = computed(() => companyInfo.value.members && companyInfo.value.members.includes(currentUser.value.id))
+const isAdmin = computed(() => companyInfo.value.administrators && companyInfo.value.administrators.includes(currentUser.value.id))
+const isOwner = computed(() => currentUser.value.id === companyInfo.value.owner)
 
 async function fetchCompanyById(companyId) {
   try {
@@ -130,6 +132,7 @@ onMounted(async () => {
           <h4 class="mb-3">{{ companyInfo.name }}</h4>
           <div class="alert alert-info py-2 mb-3" role="alert">
             <template v-if="isOwner">{{ $t('company_profile.user_owner') }}</template>
+            <template v-else-if="isAdmin">{{ $t('company_profile.user_admin') }}</template>
             <template v-else-if="isMember">{{ $t('company_profile.user_member') }}</template>
             <template v-else>{{ $t('company_profile.user_not_member') }}</template>
           </div>
@@ -213,6 +216,17 @@ onMounted(async () => {
             <UniversalTable :columns="userListColumns"
                             :data="membersList"
                             :rowClick="goToUserPage"/>
+          </AccordionItem>
+          <AccordionItem
+              v-if="isMember"
+              :itemTitle="t('company_profile.quizzes')"
+              itemSuffix="Quizzes"
+              parentSelector="#profileAccordion"
+          >
+            <CompanyQuizzes :companyId="companyInfo.id"
+                            :isMember="isMember"
+                            :isAdmin="isAdmin"
+                            :isOwner="isOwner"/>
           </AccordionItem>
           <AccordionItem
               v-if="isOwner"
