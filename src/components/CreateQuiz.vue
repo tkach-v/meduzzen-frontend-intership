@@ -65,7 +65,7 @@ const handleQuizCreate = async (quizData, actions) => {
   <Modal ref="quizModal"
          :title="t('company_profile.create_quiz')"
          :wide="true">
-    <Form @submit="handleQuizCreate"
+    <Form @submit.prevent="handleQuizCreate"
           :validation-schema="createQuizSchema"
           :initial-values="initialData">
       <div class="form-floating mb-3">

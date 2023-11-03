@@ -92,7 +92,7 @@ onMounted(async () => {
   <Modal ref="quizModal"
          :title="t('company_profile.update_quiz')"
          :wide="true">
-    <Form @submit="handleQuizUpdate"
+    <Form @submit.prevent="handleQuizUpdate"
           :validation-schema="quizSchema"
           :initial-values="initialData">
       <div class="form-floating mb-3">
@@ -153,7 +153,7 @@ onMounted(async () => {
       </button>
       <Modal ref="questionCreateModal"
              :title="t('company_profile.add_question')">
-        <Form @submit="handleQuestionCreate"
+        <Form @submit.prevent="handleQuestionCreate"
               :validation-schema="questionSchema"
               :initial-values="questionInitial">
           <div class="form-floating mb-3">

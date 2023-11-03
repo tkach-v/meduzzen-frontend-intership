@@ -36,8 +36,14 @@ let removeUserModal = ref(null);
 const removeUserMessage = ref('')
 
 const currentUser = computed(() => store.state.auth.user)
-const isMember = computed(() => companyInfo.value.members && companyInfo.value.members.includes(currentUser.value.id))
-const isAdmin = computed(() => companyInfo.value.administrators && companyInfo.value.administrators.includes(currentUser.value.id))
+const isMember = computed(() => {
+  const members = companyInfo.value.members || [];
+  return members.includes(currentUser.value.id);
+})
+const isAdmin = computed(() => {
+  const administrators = companyInfo.value.administrators || [];
+  return administrators.includes(currentUser.value.id);
+})
 const isOwner = computed(() => currentUser.value.id === companyInfo.value.owner)
 
 async function fetchCompanyById(companyId) {
