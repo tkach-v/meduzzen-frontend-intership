@@ -7,6 +7,8 @@ import {useI18n} from "vue-i18n";
 import apiClient from "@/http/axios/apiClient";
 import Modal from "@/components/Modal.vue";
 import UpdateQuiz from "@/components/UpdateQuiz.vue";
+import LocalizedLink from "@/components/LocalizedLink.vue";
+import {getQuizById} from "@/services/quizzes.service";
 
 const {t} = useI18n()
 const route = useRoute()
@@ -24,15 +26,6 @@ async function fetchUserRolesInCompany(companyId) {
     const {data} = await apiClient.get(`/api/companies/${companyId}/`)
     isAdmin.value = data.administrators.includes(currentUser.id)
     isOwner.value = data.owner === currentUser.id
-  } catch (error) {
-    console.error('API Error:', error)
-  }
-}
-
-async function fetchQuiz(quizId) {
-  try {
-    const {data} = await apiClient.get(`/api/quizzes/${quizId}/`)
-    quizInfo.value = data
   } catch (error) {
     console.error('API Error:', error)
   }
@@ -59,7 +52,7 @@ const formatDate = (dateString) => {
 
 onMounted(async () => {
   await fetchUserRolesInCompany(route.params.id)
-  await fetchQuiz(route.params.quizId)
+  quizInfo.value = await getQuizById(route.params.quizId)
 });
 </script>
 
@@ -78,29 +71,34 @@ onMounted(async () => {
           <p class="mb-2"><b>{{ $t('company_profile.created_at') }}: </b>{{ formatDate(quizInfo.created_at) }}</p>
           <p class="mb-2"><b>{{ $t('company_profile.updated_at') }}: </b>{{ formatDate(quizInfo.updated_at) }}</p>
         </div>
-        <div v-if="isOwner || isAdmin" class="mt-4">
-          <UpdateQuiz v-if="isAdmin || isOwner"
-                              :quizId="parseInt(route.params.quizId)"/>
-          <button class="btn btn-danger ms-2"
-                  type="button"
-                  @click="showDeleteQuizModal"
-          >{{ $t('company_profile.delete_quiz') }}
-          </button>
-          <Modal ref="deleteQuizModal"
-                 :title="t('company_profile.delete_quiz')">
-            <p>{{ $t('company_profile.delete_quiz_confirm') }}</p>
-            <div class="d-flex gap-2 justify-content-end">
-              <button class="btn btn-secondary"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"
-              >{{ $t('common.cancel') }}
-              </button>
-              <button class="btn btn-danger"
-                      @click="handleDeleteQuiz"
-              >{{ $t('company_profile.delete_quiz') }}
-              </button>
-            </div>
-          </Modal>
+        <div class="mt-4">
+          <LocalizedLink class="btn btn-success me-2"
+                         :to="{name: 'quizTake'}"
+          >{{ $t('company_profile.take_quiz') }}</LocalizedLink>
+          <template v-if="isOwner || isAdmin">
+            <UpdateQuiz v-if="isAdmin || isOwner"
+                        :quizId="parseInt(route.params.quizId)"/>
+            <button class="btn btn-danger ms-2"
+                    type="button"
+                    @click="showDeleteQuizModal"
+            >{{ $t('company_profile.delete_quiz') }}
+            </button>
+            <Modal ref="deleteQuizModal"
+                   :title="t('company_profile.delete_quiz')">
+              <p>{{ $t('company_profile.delete_quiz_confirm') }}</p>
+              <div class="d-flex gap-2 justify-content-end">
+                <button class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                >{{ $t('common.cancel') }}
+                </button>
+                <button class="btn btn-danger"
+                        @click="handleDeleteQuiz"
+                >{{ $t('company_profile.delete_quiz') }}
+                </button>
+              </div>
+            </Modal>
+          </template>
         </div>
       </div>
     </div>

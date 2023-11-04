@@ -1,14 +1,13 @@
 <script setup>
 import {defineProps, onMounted, ref} from 'vue';
-import apiClient from "@/http/axios/apiClient";
 import {useI18n} from "vue-i18n";
 import {useRouter} from "vue-router";
 import UniversalTable from "@/components/UniversalTable.vue";
 import CreateQuiz from "@/components/CreateQuiz.vue";
+import {getCompanyQuizzes} from "@/services/quizzes.service";
 
 const props = defineProps({
   companyId: Number,
-  isMember: Boolean,
   isAdmin: Boolean,
   isOwner: Boolean,
 })
@@ -23,21 +22,12 @@ const quizzesColumns = [
 
 const quizzesList = ref([])
 
-async function fetchCompanyQuizzes() {
-  try {
-    const {data} = await apiClient.get(`/api/companies/${props.companyId}/quizzes/`)
-    quizzesList.value = data
-  } catch (error) {
-    console.error('API Error:', error)
-  }
-}
-
 const goToQuizPage = (quizId) => {
   router.push({name: 'quizProfile', params: {quizId: quizId}});
 };
 
 onMounted(async () => {
-  await fetchCompanyQuizzes()
+  quizzesList.value = await getCompanyQuizzes(props.companyId)
 });
 </script>
 
