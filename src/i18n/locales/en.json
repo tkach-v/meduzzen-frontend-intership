@@ -74,7 +74,10 @@
     "request_id_required": "Request ID is required!",
     "requests_cancel_error": "An error occurred while cancelling the request.",
     "average_score": "Average score",
-    "user_rating": "User rating (average scores within the selected quiz)"
+    "user_rating": "User rating (average scores within the selected quiz)",
+    "export_csv": "Export to CSV",
+    "export_json": "Export to JSON",
+    "export_results": "Export quiz results"
   },
   "companies": {
     "header": "List of companies"
@@ -165,7 +168,10 @@
     "date": "Date",
     "score": "Score",
     "select_user": "Select the user",
-    "select_quiz": "Select the quiz"
+    "select_user_or_all": "Select the user or export for every member",
+    "export_every": "Every member",
+    "select_quiz": "Select the quiz",
+    "export_results": "Export users results"
   },
   "login": {
     "no_account": "Don't have an account?",
