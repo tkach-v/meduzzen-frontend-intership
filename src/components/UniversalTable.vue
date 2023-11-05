@@ -12,7 +12,9 @@ const getRowClickArg = (item) => {
     return item.recipient.id
   } else if (item.sender && item.sender.id) {
     return item.sender.id
-  }else if (item.id) {
+  } else if (item.user_id) {
+    return item.user_id
+  } else if (item.id) {
     return item.id
   }
   return null;

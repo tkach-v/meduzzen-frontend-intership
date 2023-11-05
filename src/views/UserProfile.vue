@@ -12,6 +12,10 @@ import AccordionItem from "@/components/AccordionItem.vue";
 import UserInvitations from "@/components/UserInvitations.vue";
 import UserRequests from "@/components/UserRequests.vue";
 import UserCompanies from "@/components/UserCompanies.vue";
+import UserQuizzes from "@/components/UserQuizzes.vue";
+import {getUserRating} from "@/services/users.service";
+import VueStarRating from 'vue-star-rating'
+import UserAnalytics from "@/components/UserAnalytics.vue";
 
 const {t} = useI18n()
 const route = useRoute()
@@ -21,10 +25,11 @@ const store = useStore();
 const changeInfoMessage = ref('');
 const changePasswordMessage = ref('');
 const changeAvatarMessage = ref('');
-let deleteUserModal = ref(null);
+const deleteUserModal = ref(null);
 const deleteUserMessage = ref('')
-let createCompanyModal = ref(null);
+const createCompanyModal = ref(null);
 const createCompanyMessage = ref('')
+const userScore = ref(0)
 
 const validFileExtensions = {image: ['jpg', 'gif', 'png', 'jpeg', 'svg', 'webp']};
 
@@ -167,6 +172,7 @@ onMounted(async () => {
   } else {
     await store.dispatch('users/fetchUserById', currentUser.value.id)
   }
+  userScore.value = await getUserRating(userInfo.value.id)
 });
 </script>
 
@@ -183,6 +189,14 @@ onMounted(async () => {
             <div class="d-flex flex-column">
               <h4 class="mb-0">{{ userInfo.email }}</h4>
               <p class="pt-sm-2 pb-1 mb-0 text-nowrap">{{ userInfo.first_name }} {{ userInfo.last_name }}</p>
+              <div class="d-flex align-items-center gap-3">
+                <b>{{ $t('user_profile.average_score') }}: </b>
+                <VueStarRating :rating="userScore * 5"
+                               :read-only="true"
+                               :increment="0.01"
+                               :star-size="25"
+                ></VueStarRating>
+              </div>
               <div class="mt-auto pt-4"
                    v-if="currentUser.id === userInfo.id">
                 <div>{{ $t('user_profile.change_avatar') }}:</div>
@@ -304,6 +318,22 @@ onMounted(async () => {
               parentSelector="#profileAccordion"
           >
             <UserRequests/>
+          </AccordionItem>
+          <AccordionItem
+              v-if="currentUser.id === userInfo.id"
+              :itemTitle="t('company_profile.quizzes')"
+              itemSuffix="UserQuizzes"
+              parentSelector="#profileAccordion"
+          >
+            <UserQuizzes :userId="currentUser.id"/>
+          </AccordionItem>
+          <AccordionItem
+              v-if="currentUser.id === userInfo.id"
+              :itemTitle="t('company_profile.analytics')"
+              itemSuffix="UserAnalytics"
+              parentSelector="#profileAccordion"
+          >
+            <UserAnalytics :userId="currentUser.id"/>
           </AccordionItem>
         </div>
         <div v-if="currentUser.id === userInfo.id">

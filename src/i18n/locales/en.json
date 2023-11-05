@@ -72,7 +72,9 @@
     "cancel_request": "Cancel request",
     "request_id": "Request ID",
     "request_id_required": "Request ID is required!",
-    "requests_cancel_error": "An error occurred while cancelling the request."
+    "requests_cancel_error": "An error occurred while cancelling the request.",
+    "average_score": "Average score",
+    "user_rating": "User rating (average scores within the selected quiz)"
   },
   "companies": {
     "header": "List of companies"
@@ -156,7 +158,14 @@
     "question": "Question",
     "send": "Send",
     "result": "Congratulations! You score: ",
-    "all_answers_required": "Please select an answer for all questions before submitting."
+    "all_answers_required": "Please select an answer for all questions before submitting.",
+    "analytics": "Analytics",
+    "global_rating": "Global rating (average scores of all users)",
+    "user_rating": "Selected user rating (average scores within the selected quiz)",
+    "date": "Date",
+    "score": "Score",
+    "select_user": "Select the user",
+    "select_quiz": "Select the quiz"
   },
   "login": {
     "no_account": "Don't have an account?",
