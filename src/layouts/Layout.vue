@@ -1,6 +1,7 @@
 <script setup>
 import Header from "@/layouts/Header.vue";
 import Footer from "@/layouts/Footer.vue";
+import PushNotifications from "@/components/PushNotifications.vue";
 </script>
 
 <template>
@@ -9,4 +10,5 @@ import Footer from "@/layouts/Footer.vue";
     <router-view></router-view>
   </main>
   <Footer/>
+  <PushNotifications/>
 </template>
