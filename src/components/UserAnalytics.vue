@@ -3,6 +3,7 @@ import {computed, defineProps, onMounted, ref, watch} from 'vue';
 import {useI18n} from "vue-i18n";
 import LineChart from "@/components/LineChart.vue";
 import apiClient from "@/http/axios/apiClient";
+import {sortByTimestamp} from "@/utils";
 
 const props = defineProps({
   userId: Number,
@@ -41,7 +42,7 @@ const currentUserScores = computed(() => {
   if (allUserScores.value.length) {
     const quizData = allUserScores.value.filter(item => item.quiz_id === selectedQuiz.value)[0]
     if (quizData && quizData.results) {
-      quizData.results.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+      quizData.results = sortByTimestamp(quizData.results)
       return {
         x: quizData.results.map(item => item.timestamp),
         y: quizData.results.map(item => item.score)
