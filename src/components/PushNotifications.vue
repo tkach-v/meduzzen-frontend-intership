@@ -1,42 +1,39 @@
 <script setup>
 import {toast} from "vue3-toastify";
 import {onMounted, ref} from "vue";
+import TokenService from "@/services/token.service";
 
-const status = ref('disconnected')
 const notificationSocket = ref({})
 
 function connect() {
-  notificationSocket.value = notificationSocket.value = new WebSocket(`ws:${import.meta.env.VITE_API_BASE_URL}/ws/notification/`)
-
-  notificationSocket.value.onopen = () => {
-    status.value = "connected"
-    console.log("Connected")
+  const token = TokenService.getLocalAccessToken()
+  if (!token) {
+    return
   }
+
+  notificationSocket.value = notificationSocket.value = new WebSocket(`${import.meta.env.VITE_WEBSOCKET_BASE_URL}/ws/notification/?token=${token}`)
 
   notificationSocket.value.onmessage = ({data}) => {
-    console.log("Message: ", data);
+    toast.info(data, {
+      autoClose: false,
+      position: toast.POSITION.BOTTOM_RIGHT,
+    })
   }
 
-  notificationSocket.value.onerror = function(e) {
-    console.error('Error:', e);
+  notificationSocket.value.onerror = function (error) {
+    console.error('Error:', error);
   }
 
-  notificationSocket.value.onclose = function (e) {
+  notificationSocket.value.onclose = function () {
     console.error('Chat socket closed unexpectedly');
   }
 }
 
 onMounted(() => {
-  toast.info("Test toast", {
-    autoClose: false,
-    position: toast.POSITION.BOTTOM_RIGHT,
-  })
   connect()
 })
 </script>
 
 <template>
-  <div class="bg-body-secondary py-5">
-    <div>{{ status }}</div>
-  </div>
+
 </template>
