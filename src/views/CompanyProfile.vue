@@ -230,7 +230,6 @@ onMounted(async () => {
               parentSelector="#profileAccordion"
           >
             <CompanyQuizzes :companyId="companyInfo.id"
-                            :isMember="isMember"
                             :isAdmin="isAdmin"
                             :isOwner="isOwner"/>
           </AccordionItem>

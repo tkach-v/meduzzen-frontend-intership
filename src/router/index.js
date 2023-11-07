@@ -63,8 +63,6 @@ const routes = [
                   },
                   {
                     path: 'quizzes/:quizId',
-                    name: 'quizProfile',
-                    component: () => import("@/views/QuizProfile.vue"),
                     beforeEnter: async (to, from, next) => {
                       // only for company members can access the quiz
                       const companyId = to.params.id
@@ -74,7 +72,19 @@ const routes = [
                       } else {
                         next({name: 'NotFound', params: {locale: i18n.global.locale.value}})
                       }
-                    }
+                    },
+                    children: [
+                      {
+                        path: '',
+                        name: 'quizProfile',
+                        component: () => import("@/views/QuizProfile.vue")
+                      },
+                      {
+                        path: 'take',
+                        name: 'quizTake',
+                        component: () => import("@/views/QuizTake.vue"),
+                      }
+                    ]
                   },
                 ]
               },

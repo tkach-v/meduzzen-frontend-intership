@@ -150,7 +150,13 @@
     "quiz_update_success": "Quiz updated successfully",
     "question_create_success": "Question created successfully",
     "question_delete_success": "Question deleted successfully",
-    "cannot_delete_last_questions": "You can not delete the last 2 questions!"
+    "cannot_delete_last_questions": "You can not delete the last 2 questions!",
+    "take_quiz": "Take the quiz",
+    "questions_number": "Number of questions",
+    "question": "Question",
+    "send": "Send",
+    "result": "Congratulations! You score: ",
+    "all_answers_required": "Please select an answer for all questions before submitting."
   },
   "login": {
     "no_account": "Don't have an account?",

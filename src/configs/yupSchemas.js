@@ -23,7 +23,7 @@ export const questionSchema = yup.object().shape({
     .min(2, t('company_profile.min_2_answers'))
     .test('at-least-one-correct', t('company_profile.min_1_correct'), function (value) {
       // Check if at least one answer has is_correct set to true
-      return value.some(answer => answer.is_correct === true);
+      return value && value.some(answer => answer.is_correct === true);
     })
 })
 
