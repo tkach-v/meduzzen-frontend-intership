@@ -3,6 +3,7 @@ import Home from "@/views/Home.vue";
 import Layout from "@/layouts/Layout.vue";
 import Tr from "@/i18n/translation"
 import i18n from "@/i18n/index"
+import {checkIsUserMember} from "@/services/company.service";
 
 const routes = [
   {
@@ -54,9 +55,28 @@ const routes = [
                 component: () => import("@/views/CompaniesList.vue")
               },
               {
-                path: ':id',
-                name: 'companyProfile',
-                component: () => import("@/views/CompanyProfile.vue")
+                path: ':id', children: [
+                  {
+                    path: '',
+                    name: 'companyProfile',
+                    component: () => import("@/views/CompanyProfile.vue")
+                  },
+                  {
+                    path: 'quizzes/:quizId',
+                    name: 'quizProfile',
+                    component: () => import("@/views/QuizProfile.vue"),
+                    beforeEnter: async (to, from, next) => {
+                      // only for company members can access the quiz
+                      const companyId = to.params.id
+                      const isMember = await checkIsUserMember(companyId)
+                      if (isMember) {
+                        next()
+                      } else {
+                        next({name: 'NotFound', params: {locale: i18n.global.locale.value}})
+                      }
+                    }
+                  },
+                ]
               },
             ]
           },
