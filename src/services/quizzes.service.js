@@ -17,3 +17,12 @@ export async function getQuizById(quizId) {
     console.error('API Error:', error)
   }
 }
+
+export async function getQuizLastTakenTime(quizId, userId) {
+  try {
+    const {data} = await apiClient.get(`/api/quizzes/${quizId}/last-taken-time/?user=${userId}`)
+    return data
+  } catch (error) {
+    console.error('API Error:', error)
+  }
+}

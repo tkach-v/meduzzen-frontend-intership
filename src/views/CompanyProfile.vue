@@ -16,16 +16,12 @@ import UniversalTable from "@/components/UniversalTable.vue";
 import CompanyAdmins from "@/components/CompanyAdmins.vue";
 import {userIdSchema} from "@/configs/yupSchemas";
 import CompanyQuizzes from "@/components/CompanyQuizzes.vue";
+import CompanyAnalytics from "@/components/CompanyAnalytics.vue";
 
 const {t} = useI18n()
 const route = useRoute()
 const router = useRouter()
 const store = useStore();
-
-const userListColumns = [
-  {label: "#", field: "id"},
-  {label: "Email", field: "email"},
-]
 
 const companyInfo = ref({})
 const membersList = ref([])
@@ -45,6 +41,19 @@ const isAdmin = computed(() => {
   return administrators.includes(currentUser.value.id);
 })
 const isOwner = computed(() => currentUser.value.id === companyInfo.value.owner)
+const userListColumns = computed(() => {
+  if (isOwner.value || isAdmin.value) {
+    return [
+      {label: "#", field: "user_id"},
+      {label: "Email", field: "email"},
+      {label: "Last test-taking time", field: "last_test_timestamp"},
+    ]
+  }
+  return [
+    {label: "#", field: "id"},
+    {label: "Email", field: "email"},
+  ]
+})
 
 async function fetchCompanyById(companyId) {
   try {
@@ -57,6 +66,12 @@ async function fetchCompanyById(companyId) {
 
 async function fetchCompanyMembers() {
   try {
+    if (isOwner.value || isAdmin.value) {
+      const {data} = await apiClient.get(`/api/companies/${companyInfo.value.id}/users-last-test-time/`);
+      membersList.value = data
+      return
+    }
+
     const members = [];
     for (const member of companyInfo.value.members) {
       const data = await fetchUserById(member)
@@ -257,6 +272,15 @@ onMounted(async () => {
               parentSelector="#profileAccordion"
           >
             <CompanyRequests :companyId="companyInfo.id"/>
+          </AccordionItem>
+          <AccordionItem
+              v-if="isOwner || isAdmin"
+              :itemTitle="t('company_profile.analytics')"
+              itemSuffix="UserAnalytics"
+              parentSelector="#profileAccordion"
+          >
+            <CompanyAnalytics :companyId="companyInfo.id"
+                              :members="membersList"/>
           </AccordionItem>
         </div>
         <div v-if="isOwner">
