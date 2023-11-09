@@ -20,6 +20,7 @@ const quizzesColumns = [
 ]
 
 const quizzesList = ref([])
+const selectedQuiz = ref(null)
 
 async function fetchUserQuizzes(url) {
   try {
@@ -40,6 +41,25 @@ async function fetchUserQuizzes(url) {
   }
 }
 
+async function handleExportData(format) {
+  try {
+    const {data} = await apiClient.get(`/api/quizzes/${selectedQuiz.value}/export-results/${format}/`)
+
+    const blobData = format === 'csv' ? data : JSON.stringify(data)
+    const blobType = format === 'csv' ? `text/csv` : `application/json`
+    const blob = new Blob([blobData], {type: blobType})
+
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `quiz${selectedQuiz.value}_results.${format}`
+    link.click()
+    URL.revokeObjectURL(url)
+  } catch (error) {
+    console.error('API Error:', error)
+  }
+}
+
 const goToQuizPage = async (quizId) => {
   const {company} = await getQuizById(quizId)
   router.push({name: 'quizProfile', params: {id: company, quizId: quizId}});
@@ -47,10 +67,33 @@ const goToQuizPage = async (quizId) => {
 
 onMounted(async () => {
   await fetchUserQuizzes('/api/quizzes/')
-});
+  selectedQuiz.value = quizzesList.value[0].id
+})
 </script>
 
 <template>
+  <h4>{{ $t('user_profile.export_results') }}:</h4>
+  <div class="d-flex align-items-center mb-3">
+    <div class="me-3">{{ $t('company_profile.select_quiz') }}:</div>
+    <select v-model="selectedQuiz"
+            class="me-auto form-select"
+            style="max-width: 250px">
+      <option v-for="quiz in quizzesList"
+              :key="quiz.id"
+              :value="quiz.id"
+      >{{ quiz.title }}
+      </option>
+    </select>
+  </div>
+  <button class="btn btn-primary me-2"
+          @click="handleExportData('csv')"
+  >{{ $t('user_profile.export_csv') }}
+  </button>
+  <button class="btn btn-primary"
+          @click="handleExportData('json')"
+  >{{ $t('user_profile.export_json') }}
+  </button>
+  <h4 class="mt-5">{{ $t('company_profile.quizzes') }}:</h4>
   <UniversalTable :columns="quizzesColumns"
                   :data="quizzesList"
                   :rowClick="goToQuizPage"/>

@@ -12,11 +12,10 @@ import {fetchUserById} from "@/services/users.service";
 import AccordionItem from "@/components/AccordionItem.vue";
 import CompanyInvitations from "@/components/CompanyInvitations.vue";
 import CompanyRequests from "@/components/CompanyRequests.vue";
-import UniversalTable from "@/components/UniversalTable.vue";
 import CompanyAdmins from "@/components/CompanyAdmins.vue";
-import {userIdSchema} from "@/configs/yupSchemas";
 import CompanyQuizzes from "@/components/CompanyQuizzes.vue";
 import CompanyAnalytics from "@/components/CompanyAnalytics.vue";
+import CompanyMembers from "@/components/CompanyMembers.vue";
 
 const {t} = useI18n()
 const route = useRoute()
@@ -28,8 +27,6 @@ const membersList = ref([])
 let deleteCompanyModal = ref(null);
 const deleteCompanyMessage = ref('')
 const changeInfoMessage = ref('');
-let removeUserModal = ref(null);
-const removeUserMessage = ref('')
 
 const currentUser = computed(() => store.state.auth.user)
 const isMember = computed(() => {
@@ -41,19 +38,6 @@ const isAdmin = computed(() => {
   return administrators.includes(currentUser.value.id);
 })
 const isOwner = computed(() => currentUser.value.id === companyInfo.value.owner)
-const userListColumns = computed(() => {
-  if (isOwner.value || isAdmin.value) {
-    return [
-      {label: "#", field: "user_id"},
-      {label: "Email", field: "email"},
-      {label: "Last test-taking time", field: "last_test_timestamp"},
-    ]
-  }
-  return [
-    {label: "#", field: "id"},
-    {label: "Email", field: "email"},
-  ]
-})
 
 async function fetchCompanyById(companyId) {
   try {
@@ -88,10 +72,6 @@ const formatDate = (dateString) => {
   return createdAt.toLocaleDateString()
 };
 
-const goToUserPage = (userId) => {
-  router.push({name: 'userProfile', params: {id: userId}});
-};
-
 function showDeleteCompanyModal() {
   deleteCompanyModal.value.show();
 }
@@ -123,21 +103,6 @@ const handleChangeInfo = async (companyData, actions) => {
     changeInfoMessage.value = t('user_profile.company_create_error')
   }
 };
-
-function showRemoveUserModal() {
-  removeUserModal.value.show();
-}
-
-const removeUserSchema = userIdSchema(t('company_profile.user_id_required'))
-const handleRemoveUser = async (userData, actions) => {
-  try {
-    await apiClient.post(`/api/companies/${companyInfo.value.id}/remove-user/`, userData)
-    actions.resetForm()
-    removeUserMessage.value = ""
-  } catch (err) {
-    removeUserMessage.value = "Error: " + err.response.data.detail
-  }
-}
 
 onMounted(async () => {
   await fetchCompanyById(route.params.id)
@@ -200,43 +165,15 @@ onMounted(async () => {
             </div>
           </AccordionItem>
           <AccordionItem
+              v-if="isMember"
               :itemTitle="t('company_profile.members')"
               itemSuffix="Members"
               parentSelector="#profileAccordion"
           >
-            <div v-if="isOwner">
-              <button class="mb-4 btn btn-danger"
-                      type="button"
-                      @click="showRemoveUserModal"
-              >{{ $t('company_profile.remove_member') }}
-              </button>
-              <Modal ref="removeUserModal"
-                     :title="t('company_profile.remove_member')">
-                <Form @submit="handleRemoveUser"
-                      :validation-schema="removeUserSchema">
-                  <div class="form-floating mb-3">
-                    <Field name="user_id"
-                           type="number"
-                           class="form-control"
-                           placeholder="Recipient"/>
-                    <label for="user_id">{{ $t('company_profile.user_id') }}</label>
-                    <ErrorMessage name="user_id" class="d-flex mt-2 invalid-feedback"/>
-                  </div>
-                  <button class="d-flex btn btn-danger px-3 ms-auto">{{
-                      $t('company_profile.remove_member')
-                    }}
-                  </button>
-                </Form>
-                <div v-if="removeUserMessage"
-                     class="alert mt-3 alert-danger"
-                >
-                  {{ removeUserMessage }}
-                </div>
-              </Modal>
-            </div>
-            <UniversalTable :columns="userListColumns"
-                            :data="membersList"
-                            :rowClick="goToUserPage"/>
+            <CompanyMembers :companyId="companyInfo.id"
+                            :isAdmin="isAdmin"
+                            :isOwner="isOwner"
+                            :members="membersList"/>
           </AccordionItem>
           <AccordionItem
               v-if="isMember"
