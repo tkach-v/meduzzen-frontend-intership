@@ -5,6 +5,7 @@ import {useRouter} from "vue-router";
 import UniversalTable from "@/components/UniversalTable.vue";
 import apiClient from "@/http/axios/apiClient";
 import {getQuizById, getQuizLastTakenTime} from "@/services/quizzes.service";
+import {handleExportData} from "@/utils";
 
 const props = defineProps({
   userId: Number,
@@ -41,25 +42,6 @@ async function fetchUserQuizzes(url) {
   }
 }
 
-async function handleExportData(format) {
-  try {
-    const {data} = await apiClient.get(`/api/quizzes/${selectedQuiz.value}/export-results/${format}/`)
-
-    const blobData = format === 'csv' ? data : JSON.stringify(data)
-    const blobType = format === 'csv' ? `text/csv` : `application/json`
-    const blob = new Blob([blobData], {type: blobType})
-
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `quiz${selectedQuiz.value}_results.${format}`
-    link.click()
-    URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error('API Error:', error)
-  }
-}
-
 const goToQuizPage = async (quizId) => {
   const {company} = await getQuizById(quizId)
   router.push({name: 'quizProfile', params: {id: company, quizId: quizId}});
@@ -86,11 +68,19 @@ onMounted(async () => {
     </select>
   </div>
   <button class="btn btn-primary me-2"
-          @click="handleExportData('csv')"
+          @click="handleExportData(
+              'csv',
+              `/api/quizzes/${selectedQuiz}/export-results/csv/`,
+          `quiz${selectedQuiz}_results`
+          )"
   >{{ $t('user_profile.export_csv') }}
   </button>
   <button class="btn btn-primary"
-          @click="handleExportData('json')"
+          @click="handleExportData(
+              'json',
+              `/api/quizzes/${selectedQuiz}/export-results/json/`,
+          `quiz${selectedQuiz}_results`
+          )"
   >{{ $t('user_profile.export_json') }}
   </button>
   <h4 class="mt-5">{{ $t('company_profile.quizzes') }}:</h4>

@@ -33,7 +33,3 @@ onMounted(() => {
   connect()
 })
 </script>
-
-<template>
-
-</template>
