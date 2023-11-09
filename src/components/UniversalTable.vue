@@ -6,19 +6,13 @@ defineProps({
 });
 
 const getRowClickArg = (item) => {
-  if (item.company && item.company.id) {
-    return item.company.id
-  } else if (item.recipient && item.recipient.id) {
-    return item.recipient.id
-  } else if (item.sender && item.sender.id) {
-    return item.sender.id
-  } else if (item.user_id) {
-    return item.user_id
-  } else if (item.id) {
-    return item.id
+  const keyToCheck = item.company?.id || item.recipient?.id || item.sender?.id || item.user_id || item.id
+
+  if (keyToCheck) {
+    return keyToCheck
   }
-  return null;
-};
+  return null
+}
 
 const getNestedValue = (item, field) => {
   return field.split('.').reduce((value, key) => value[key], item);

@@ -4,6 +4,8 @@ import {useI18n} from "vue-i18n";
 import LineChart from "@/components/LineChart.vue";
 import apiClient from "@/http/axios/apiClient";
 import {getCompanyQuizzes} from "@/services/quizzes.service";
+import {sortByTimestamp} from "@/utils";
+
 
 const props = defineProps({
   companyId: Number,
@@ -23,7 +25,7 @@ const userScores = computed(() => {
   if (selectedUserScores.value) {
     const quizData = selectedUserScores.value.filter(item => item.quiz_id === selectedQuiz.value)[0]
     if (quizData && quizData.results) {
-      quizData.results.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+      quizData.results = sortByTimestamp(quizData.results)
       return {
         x: quizData.results.map(item => item.timestamp),
         y: quizData.results.map(item => item.score)
@@ -35,8 +37,8 @@ const userScores = computed(() => {
 
 async function fetchAllUsersScores() {
   try {
-    const {data} = await apiClient.get(`/api/quizzes/all-users-scores/`);
-    data.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+    let {data} = await apiClient.get(`/api/quizzes/all-users-scores/`);
+    data = sortByTimestamp(data)
 
     allUsersScoresX.value = data.map(item => item.timestamp)
     allUsersScoresY.value = data.map(item => item.score)

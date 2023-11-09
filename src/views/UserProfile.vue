@@ -221,184 +221,179 @@ onMounted(async () => {
             </div>
           </div>
         </div>
-        <div class="accordion mt-5" id="profileAccordion">
-          <AccordionItem
-              v-if="currentUser.id === userInfo.id"
-              :itemTitle="t('user_profile.change_user_info')"
-              itemSuffix="ChangeInfo"
-              parentSelector="#profileAccordion"
-          >
-            <Form @submit="handleChangeInfo" :validation-schema="userInfoSchema">
-              <div class="form-floating mb-3">
-                <input name="email"
-                       type="email"
-                       class="form-control"
-                       placeholder="user@example.com"
-                       :value="userInfo.email"
-                       readonly/>
-                <label for="email">{{ $t('common.email') }}</label>
-              </div>
-              <div class="form-floating mb-3">
-                <Field
-                    name="firstName"
-                    type="text"
-                    class="form-control"
-                    placeholder="First Name"/>
-                <label for="firstName">{{ $t('user_profile.first_name') }}</label>
-                <ErrorMessage name="firstName" class="d-flex mt-2 invalid-feedback"/>
-              </div>
-              <div class="form-floating mb-3">
-                <Field name="lastName"
-                       type="text"
-                       class="form-control"
-                       placeholder="Last Name"/>
-                <label for="lastName">{{ $t('user_profile.last_name') }}</label>
-                <ErrorMessage name="lastName" class="d-flex mt-2 invalid-feedback"/>
-              </div>
-              <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('user_profile.save') }}</button>
-            </Form>
-            <div v-if="changeInfoMessage"
-                 class="alert mt-3 alert-danger"
+        <template v-if="currentUser.id === userInfo.id">
+          <div class="accordion mt-5" id="profileAccordion">
+            <AccordionItem
+                :itemTitle="t('user_profile.change_user_info')"
+                itemSuffix="ChangeInfo"
+                parentSelector="#profileAccordion"
             >
-              {{ changeInfoMessage }}
-            </div>
-          </AccordionItem>
-          <AccordionItem
-              v-if="currentUser.id === userInfo.id"
-              :itemTitle="t('user_profile.change_user_password')"
-              itemSuffix="ChangePass"
-              parentSelector="#profileAccordion"
-          >
-            <Form @submit="handleChangePassword" :validation-schema="changePasswordSchema">
-              <div class="form-floating mb-3">
-                <Field
-                    name="password"
-                    type="password"
-                    class="form-control"
-                    placeholder="password"/>
-                <label for="password">{{ $t('user_profile.new_password') }}</label>
-                <ErrorMessage name="password" class="d-flex mt-2 invalid-feedback"/>
+              <Form @submit="handleChangeInfo" :validation-schema="userInfoSchema">
+                <div class="form-floating mb-3">
+                  <input name="email"
+                         type="email"
+                         class="form-control"
+                         placeholder="user@example.com"
+                         :value="userInfo.email"
+                         readonly/>
+                  <label for="email">{{ $t('common.email') }}</label>
+                </div>
+                <div class="form-floating mb-3">
+                  <Field
+                      name="firstName"
+                      type="text"
+                      class="form-control"
+                      placeholder="First Name"/>
+                  <label for="firstName">{{ $t('user_profile.first_name') }}</label>
+                  <ErrorMessage name="firstName" class="d-flex mt-2 invalid-feedback"/>
+                </div>
+                <div class="form-floating mb-3">
+                  <Field name="lastName"
+                         type="text"
+                         class="form-control"
+                         placeholder="Last Name"/>
+                  <label for="lastName">{{ $t('user_profile.last_name') }}</label>
+                  <ErrorMessage name="lastName" class="d-flex mt-2 invalid-feedback"/>
+                </div>
+                <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('user_profile.save') }}</button>
+              </Form>
+              <div v-if="changeInfoMessage"
+                   class="alert mt-3 alert-danger"
+              >
+                {{ changeInfoMessage }}
               </div>
-              <div class="form-floating mb-3">
-                <Field name="passwordConfirmation"
-                       type="password"
-                       class="form-control"
-                       placeholder="password"/>
-                <label for="passwordConfirmation">{{ $t('user_profile.new_password_confirm') }}</label>
-                <ErrorMessage name="passwordConfirmation" class="d-flex mt-2 invalid-feedback"/>
-              </div>
-              <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('user_profile.save') }}</button>
-            </Form>
-            <div v-if="changePasswordMessage"
-                 class="alert mt-3 alert-danger"
+            </AccordionItem>
+            <AccordionItem
+                :itemTitle="t('user_profile.change_user_password')"
+                itemSuffix="ChangePass"
+                parentSelector="#profileAccordion"
             >
-              {{ changePasswordMessage }}
-            </div>
-          </AccordionItem>
-          <AccordionItem
-              v-if="currentUser.id === userInfo.id"
-              :itemTitle="t('user_profile.companies')"
-              itemSuffix="UserCompanies"
-              parentSelector="#profileAccordion"
-          >
-            <UserCompanies/>
-          </AccordionItem>
-          <AccordionItem
-              v-if="currentUser.id === userInfo.id"
-              :itemTitle="t('company_profile.invitations')"
-              itemSuffix="UserInvitations"
-              parentSelector="#profileAccordion"
-          >
-            <UserInvitations/>
-          </AccordionItem>
-          <AccordionItem
-              v-if="currentUser.id === userInfo.id"
-              :itemTitle="t('company_profile.requests')"
-              itemSuffix="UserRequests"
-              parentSelector="#profileAccordion"
-          >
-            <UserRequests/>
-          </AccordionItem>
-          <AccordionItem
-              v-if="currentUser.id === userInfo.id"
-              :itemTitle="t('company_profile.quizzes')"
-              itemSuffix="UserQuizzes"
-              parentSelector="#profileAccordion"
-          >
-            <UserQuizzes :userId="currentUser.id"/>
-          </AccordionItem>
-          <AccordionItem
-              v-if="currentUser.id === userInfo.id"
-              :itemTitle="t('company_profile.analytics')"
-              itemSuffix="UserAnalytics"
-              parentSelector="#profileAccordion"
-          >
-            <UserAnalytics :userId="currentUser.id"/>
-          </AccordionItem>
-        </div>
-        <div v-if="currentUser.id === userInfo.id">
-          <button class="mt-4 btn btn-primary me-2"
-                  type="button"
-                  @click="showCreateCompanyModal"
-          >{{ $t('user_profile.create_company') }}
-          </button>
-          <button class="mt-4 btn btn-danger"
-                  type="button"
-                  @click="showDeleteUserModal"
-          >{{ $t('user_profile.delete_user') }}
-          </button>
-          <Modal ref="deleteUserModal"
-                 :title="t('user_profile.delete_user')">
-            <p>{{ $t('user_profile.delete_user_confirm') }}</p>
-            <div class="d-flex gap-2 justify-content-end">
-              <button class="btn btn-secondary"
-                      data-bs-dismiss="modal"
-                      aria-label="Close"
-              >{{ $t('common.cancel') }}
-              </button>
-              <button class="btn btn-danger"
-                      data-bs-dismiss="modal"
-                      @click="handleDeleteUser"
-              >{{ $t('user_profile.delete_user') }}
-              </button>
-            </div>
-            <div v-if="deleteUserMessage"
-                 class="alert mt-3 alert-danger"
-            >
-              {{ deleteUserMessage }}
-            </div>
-          </Modal>
-          <Modal ref="createCompanyModal"
-                 :title="t('user_profile.create_company')">
-            <Form @submit="handleCompanyCreation" :validation-schema="createCompanySchema">
-              <div class="form-floating mb-3">
-                <Field name="name"
-                       type="text"
-                       class="form-control"
-                       placeholder="user@example.com"/>
-                <label for="name">{{ $t('company_profile.name') }}</label>
-                <ErrorMessage name="name" class="d-flex mt-2 invalid-feedback"/>
+              <Form @submit="handleChangePassword" :validation-schema="changePasswordSchema">
+                <div class="form-floating mb-3">
+                  <Field
+                      name="password"
+                      type="password"
+                      class="form-control"
+                      placeholder="password"/>
+                  <label for="password">{{ $t('user_profile.new_password') }}</label>
+                  <ErrorMessage name="password" class="d-flex mt-2 invalid-feedback"/>
+                </div>
+                <div class="form-floating mb-3">
+                  <Field name="passwordConfirmation"
+                         type="password"
+                         class="form-control"
+                         placeholder="password"/>
+                  <label for="passwordConfirmation">{{ $t('user_profile.new_password_confirm') }}</label>
+                  <ErrorMessage name="passwordConfirmation" class="d-flex mt-2 invalid-feedback"/>
+                </div>
+                <button class="d-flex btn btn-primary px-3 ms-auto">{{ $t('user_profile.save') }}</button>
+              </Form>
+              <div v-if="changePasswordMessage"
+                   class="alert mt-3 alert-danger"
+              >
+                {{ changePasswordMessage }}
               </div>
-              <div class="form-floating mb-3">
-                <Field
-                    name="description"
-                    as="textarea"
-                    type="text"
-                    class="form-control"
-                    placeholder="Description"
-                    style="height: 125px"/>
-                <label for="description">{{ $t('company_profile.description') }}</label>
-                <ErrorMessage name="description" class="d-flex mt-2 invalid-feedback"/>
-              </div>
-              <button class="btn btn-primary btn-lg w-100 mt-3 px-5">{{ $t('common.create') }}</button>
-            </Form>
-            <div v-if="createCompanyMessage"
-                 class="alert mt-3 alert-danger"
+            </AccordionItem>
+            <AccordionItem
+                :itemTitle="t('user_profile.companies')"
+                itemSuffix="UserCompanies"
+                parentSelector="#profileAccordion"
             >
-              {{ createCompanyMessage }}
-            </div>
-          </Modal>
-        </div>
+              <UserCompanies/>
+            </AccordionItem>
+            <AccordionItem
+                :itemTitle="t('company_profile.invitations')"
+                itemSuffix="UserInvitations"
+                parentSelector="#profileAccordion"
+            >
+              <UserInvitations/>
+            </AccordionItem>
+            <AccordionItem
+                :itemTitle="t('company_profile.requests')"
+                itemSuffix="UserRequests"
+                parentSelector="#profileAccordion"
+            >
+              <UserRequests/>
+            </AccordionItem>
+            <AccordionItem
+                :itemTitle="t('company_profile.quizzes')"
+                itemSuffix="UserQuizzes"
+                parentSelector="#profileAccordion"
+            >
+              <UserQuizzes :userId="currentUser.id"/>
+            </AccordionItem>
+            <AccordionItem
+                :itemTitle="t('company_profile.analytics')"
+                itemSuffix="UserAnalytics"
+                parentSelector="#profileAccordion"
+            >
+              <UserAnalytics :userId="currentUser.id"/>
+            </AccordionItem>
+          </div>
+          <div>
+            <button class="mt-4 btn btn-primary me-2"
+                    type="button"
+                    @click="showCreateCompanyModal"
+            >{{ $t('user_profile.create_company') }}
+            </button>
+            <button class="mt-4 btn btn-danger"
+                    type="button"
+                    @click="showDeleteUserModal"
+            >{{ $t('user_profile.delete_user') }}
+            </button>
+            <Modal ref="deleteUserModal"
+                   :title="t('user_profile.delete_user')">
+              <p>{{ $t('user_profile.delete_user_confirm') }}</p>
+              <div class="d-flex gap-2 justify-content-end">
+                <button class="btn btn-secondary"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                >{{ $t('common.cancel') }}
+                </button>
+                <button class="btn btn-danger"
+                        data-bs-dismiss="modal"
+                        @click="handleDeleteUser"
+                >{{ $t('user_profile.delete_user') }}
+                </button>
+              </div>
+              <div v-if="deleteUserMessage"
+                   class="alert mt-3 alert-danger"
+              >
+                {{ deleteUserMessage }}
+              </div>
+            </Modal>
+            <Modal ref="createCompanyModal"
+                   :title="t('user_profile.create_company')">
+              <Form @submit="handleCompanyCreation" :validation-schema="createCompanySchema">
+                <div class="form-floating mb-3">
+                  <Field name="name"
+                         type="text"
+                         class="form-control"
+                         placeholder="user@example.com"/>
+                  <label for="name">{{ $t('company_profile.name') }}</label>
+                  <ErrorMessage name="name" class="d-flex mt-2 invalid-feedback"/>
+                </div>
+                <div class="form-floating mb-3">
+                  <Field
+                      name="description"
+                      as="textarea"
+                      type="text"
+                      class="form-control"
+                      placeholder="Description"
+                      style="height: 125px"/>
+                  <label for="description">{{ $t('company_profile.description') }}</label>
+                  <ErrorMessage name="description" class="d-flex mt-2 invalid-feedback"/>
+                </div>
+                <button class="btn btn-primary btn-lg w-100 mt-3 px-5">{{ $t('common.create') }}</button>
+              </Form>
+              <div v-if="createCompanyMessage"
+                   class="alert mt-3 alert-danger"
+              >
+                {{ createCompanyMessage }}
+              </div>
+            </Modal>
+          </div>
+        </template>
       </div>
     </div>
   </div>
