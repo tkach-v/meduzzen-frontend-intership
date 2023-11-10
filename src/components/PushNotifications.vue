@@ -11,7 +11,7 @@ function connect() {
     return
   }
 
-  notificationSocket.value = notificationSocket.value = new WebSocket(`${import.meta.env.VITE_WEBSOCKET_BASE_URL}/ws/notification/?token=${token}`)
+  notificationSocket.value = new WebSocket(`${import.meta.env.VITE_WEBSOCKET_BASE_URL}/ws/notification/?token=${token}`)
 
   notificationSocket.value.onmessage = ({data}) => {
     toast.info(data, {
