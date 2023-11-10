@@ -19,6 +19,7 @@ const currentUser = computed(() => store.state.auth.user);
 
 const dropdownItems = currentUser.value ? [
   {text: 'header.profile', link: {name: 'profile'}},
+  {text: 'notifications.notifications', link: {name: 'userNotifications'}},
   {text: 'header.companies', link: {name: 'companiesList'}},
 ] : [
   {text: 'common.sign_in', link: {name: 'login'}},

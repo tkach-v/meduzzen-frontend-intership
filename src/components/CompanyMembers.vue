@@ -7,6 +7,7 @@ import {ErrorMessage, Field, Form} from "vee-validate";
 import Modal from "@/components/Modal.vue";
 import {userIdSchema} from "@/configs/yupSchemas";
 import apiClient from "@/http/axios/apiClient";
+import {handleExportData} from "@/utils";
 
 const props = defineProps({
   companyId: Number,
@@ -36,28 +37,12 @@ const userListColumns = computed(() => {
   ]
 })
 
-async function handleExportData(format) {
-  try {
-    let exportUrl = `/api/companies/${props.companyId}/export-results/${format}/`
-    if (selectedMember.value) {
-      exportUrl += `?user=${selectedMember.value}`
-    }
-
-    const {data} = await apiClient.get(exportUrl)
-
-    const blobData = format === 'csv' ? data : JSON.stringify(data)
-    const blobType = format === 'csv' ? `text/csv` : `application/json`
-    const blob = new Blob([blobData], {type: blobType})
-
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `results.${format}`
-    link.click()
-    URL.revokeObjectURL(url)
-  } catch (error) {
-    console.error('API Error:', error)
+function getExportDataUrl(format) {
+  let exportUrl = `/api/companies/${props.companyId}/export-results/${format}/`
+  if (selectedMember.value) {
+    exportUrl += `?user=${selectedMember.value}`
   }
+  return exportUrl
 }
 
 function showRemoveUserModal() {
@@ -82,7 +67,7 @@ const goToUserPage = (userId) => {
 
 <template>
   <div class="mb-4"
-      v-if="isOwner || isAdmin">
+       v-if="isOwner || isAdmin">
     <h4>{{ $t('company_profile.export_results') }}:</h4>
     <div class="d-flex align-items-center mb-3">
       <div class="me-3">{{ $t('company_profile.select_user_or_all') }}:</div>
@@ -98,11 +83,19 @@ const goToUserPage = (userId) => {
       </select>
     </div>
     <button class="btn btn-primary me-2"
-            @click="handleExportData('csv')"
+            @click="handleExportData(
+              'csv',
+              `${getExportDataUrl('csv')}`,
+          `user${selectedMember}_results`
+          )"
     >{{ $t('user_profile.export_csv') }}
     </button>
     <button class="btn btn-primary"
-            @click="handleExportData('json')"
+            @click="handleExportData(
+              'json',
+              `${getExportDataUrl('json')}`,
+          `user${selectedMember}_results`
+          )"
     >{{ $t('user_profile.export_json') }}
     </button>
   </div>
@@ -124,7 +117,7 @@ const goToUserPage = (userId) => {
           <label for="user_id">{{ $t('company_profile.user_id') }}</label>
           <ErrorMessage name="user_id" class="d-flex mt-2 invalid-feedback"/>
         </div>
-        <button class="d-flex btn btn-danger px-3 ms-auto">{{$t('company_profile.remove_member')}}</button>
+        <button class="d-flex btn btn-danger px-3 ms-auto">{{ $t('company_profile.remove_member') }}</button>
       </Form>
       <div v-if="removeUserMessage"
            class="alert mt-3 alert-danger"

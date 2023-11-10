@@ -198,5 +198,10 @@
   "not_found": {
     "text": "Sorry, an error has occured, Requested page not found!",
     "btn_text": "Go to home page"
+  },
+  "notifications": {
+    "notifications": "Notifications",
+    "unread_notifications": "Unread notifications",
+    "mark_read": "Mark as read"
   }
 }
