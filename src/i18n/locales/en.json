@@ -171,7 +171,11 @@
     "select_user_or_all": "Select the user or export for every member",
     "export_every": "Every member",
     "select_quiz": "Select the quiz",
-    "export_results": "Export users results"
+    "export_results": "Export users results",
+    "import": "Import",
+    "import_data": "Import quiz from Excel",
+    "import_quiz_success": "Quiz imported successfully",
+    "excel_file_required": "Excel file is required!"
   },
   "login": {
     "no_account": "Don't have an account?",

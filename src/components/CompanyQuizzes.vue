@@ -5,6 +5,7 @@ import {useRouter} from "vue-router";
 import UniversalTable from "@/components/UniversalTable.vue";
 import CreateQuiz from "@/components/CreateQuiz.vue";
 import {getCompanyQuizzes} from "@/services/quizzes.service";
+import ImportQuiz from "@/components/ImportQuiz.vue";
 
 const props = defineProps({
   companyId: Number,
@@ -33,6 +34,8 @@ onMounted(async () => {
 
 <template>
   <CreateQuiz v-if="isAdmin || isOwner"
+                      :companyId="companyId"/>
+  <ImportQuiz v-if="isAdmin || isOwner"
                       :companyId="companyId"/>
   <UniversalTable :columns="quizzesColumns"
                   :data="quizzesList"
