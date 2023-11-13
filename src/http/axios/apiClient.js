@@ -39,9 +39,13 @@ apiClient.interceptors.response.use(
 
           const {access} = rs.data;
 
+          if (!access) {
+            await store.dispatch('auth/logout')
+            return Promise.reject()
+          }
+
           await store.dispatch('auth/refreshToken', access);
           TokenService.updateLocalAccessToken(access);
-
           return apiClient(originalConfig);
         } catch (_error) {
           return Promise.reject(_error);
